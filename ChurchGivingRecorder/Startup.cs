@@ -35,9 +35,16 @@ namespace ChurchGivingRecorder
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+#if DEBUG
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+#else
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseMySQL(
+                    Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
+#endif
+
             services.AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
