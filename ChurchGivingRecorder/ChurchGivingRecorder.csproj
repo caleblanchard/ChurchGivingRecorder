@@ -10,6 +10,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
+    <PackageReference Include="NonFactors.Grid.Mvc6" Version="4.0.2" />
+    <PackageReference Include="NonFactors.Lookup.Mvc6" Version="3.2.1" />
   </ItemGroup>
 
 </Project>
