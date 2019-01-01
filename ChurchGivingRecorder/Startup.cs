@@ -41,8 +41,8 @@ namespace ChurchGivingRecorder
                     Configuration.GetConnectionString("DefaultConnection")));
 #else
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySQL(
-                    Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
+                options.UseMySQL(Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")));
+                    //Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
 #endif
 
             services.AddDefaultIdentity<IdentityUser>()
