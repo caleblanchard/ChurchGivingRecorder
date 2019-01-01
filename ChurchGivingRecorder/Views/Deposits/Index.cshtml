@@ -1,41 +1,51 @@
 ﻿@model IEnumerable<ChurchGivingRecorder.Models.Deposit>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Deposits";
 }
 
-<h1>Index</h1>
+<h1>Deposits</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" data-target="#createEditModal" data-toggle="modal">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DepositDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepositDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+
+@(Html
+            .Grid(Model)
+            .Build(columns =>
+            {
+                columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", new { Id = model.Id }, new { data_target = "#createEditModal", data_toggle = "modal" })).Titled("Deposit Id");
+                columns.Add(model => model.DepositDate.ToString("MM/dd/yyyy")).Titled("Deposit Date");
+                columns.Add(model => model.Description).Titled("Description");
+            })
+            .Empty("No data found")
+            .Filterable()
+            .Sortable()
+            .Pageable()
+)
+
+<!-- Modal -->
+<div class="modal fade" id="createEditModal" tabindex="-1" role="dialog" aria-labelledby="createEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @* The normal bootstrap behavior is to only grab the content for the modal once, if you need to pull in different partial views then the data on the modal will have to be cleared.*@
+    <script type="text/javascript">
+$(function () {
+
+            // boostrap 4 load modal example from docs
+    $('#createEditModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var url = button.attr("href");
+                var modal = $(this);
+
+                // note that this will replace the content of modal-content ever time the modal is opened
+                modal.find('.modal-content').load(url);
+            });
+        });</script>
 }
-    </tbody>
-</table>

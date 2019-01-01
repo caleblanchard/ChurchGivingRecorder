@@ -20,9 +20,9 @@ namespace ChurchGivingRecorder.Controllers
         }
 
         // GET: Funds
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Funds.ToListAsync());
+            return View(_context.Set<Fund>());
         }
 
         // GET: Funds/Details/5
@@ -46,7 +46,7 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Funds/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView();
         }
 
         // POST: Funds/Create
@@ -62,7 +62,7 @@ namespace ChurchGivingRecorder.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(fund);
+            return PartialView(fund);
         }
 
         // GET: Funds/Edit/5
@@ -78,7 +78,7 @@ namespace ChurchGivingRecorder.Controllers
             {
                 return NotFound();
             }
-            return View(fund);
+            return PartialView(fund);
         }
 
         // POST: Funds/Edit/5
@@ -113,7 +113,7 @@ namespace ChurchGivingRecorder.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(fund);
+            return PartialView(fund);
         }
 
         // GET: Funds/Delete/5
