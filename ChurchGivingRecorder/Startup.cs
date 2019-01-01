@@ -40,8 +40,9 @@ namespace ChurchGivingRecorder
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 #else
+            string connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySQL(Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")));
+                options.UseMySQL(AzureMySQL.ToMySQLStandard(connectionString)));
                     //Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
 #endif
 
