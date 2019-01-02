@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using kedzior.io.ConnectionStringConverter;
 
 namespace ChurchGivingRecorder
 {
