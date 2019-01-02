@@ -12,6 +12,8 @@ namespace ChurchGivingRecorder.Data
         public DbSet<Fund> Funds { get; set; }
         public DbSet<Giver> Givers { get; set; }
         public DbSet<Deposit> Deposits { get; set; }
+        public DbSet<Gift> Gifts { get; set; }
+        public DbSet<GiftDetail> GiftDetails { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

@@ -1,0 +1,101 @@
+﻿@model ChurchGivingRecorder.Models.Gift
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<form asp-action="Edit">
+    <div class="modal-header">
+        <h5 class="modal-title" id="createEditModalLabel">Edit Gift</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="DepositId" />
+                @*<div class="form-group">
+                        <label asp-for="DepositId" class="control-label"></label>
+                        <select asp-for="DepositId" class="form-control" asp-items="ViewBag.DepositId"></select>
+                    </div>*@
+                <div class="form-group">
+                    <label asp-for="GiverId" class="control-label"></label>
+                    @Html.AutoCompleteFor(model => model.GiverId, new ChurchGivingRecorder.Data.GiverLookup())
+                </div>
+                <div class="form-group">
+                    <label asp-for="GiftDate" class="control-label"></label>
+                    <input asp-for="GiftDate" class="form-control" />
+                    <span asp-validation-for="GiftDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="PaymentMethod" class="control-label"></label>
+                    <select asp-for="PaymentMethod" asp-items="Html.GetEnumSelectList<ChurchGivingRecorder.Models.PaymentMethod>()" class="form-control"></select>
+                    <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CheckNumber" class="control-label"></label>
+                    <input asp-for="CheckNumber" class="form-control" />
+                    <span asp-validation-for="CheckNumber" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.GiftDetails[0].Fund.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.GiftDetails[0].Amount)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.GiftDetails[0].Comment)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.GiftDetails)
+                    {
+                        <tr>
+                            <td>
+                                @Html.HiddenFor(modelItem => item.Id)
+                                @Html.DisplayFor(modelItem => item.Fund.Name)
+                            </td>
+                            <td>
+                                @Html.EditorFor(modelItem => item.Amount)
+                            </td>
+                            <td>
+                                @Html.EditorFor(modelItem => item.Comment)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
+
+<script>
+    [].forEach.call(document.getElementsByClassName('mvc-lookup'), function(element) {
+            new MvcLookup(element);
+        });
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

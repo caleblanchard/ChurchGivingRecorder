@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using kedzior.io.ConnectionStringConverter;
 
 namespace ChurchGivingRecorder
 {
@@ -35,15 +36,16 @@ namespace ChurchGivingRecorder
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-#if DEBUG
+//#if DEBUG
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-#else
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySQL(Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")));
-                    //Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
-#endif
+//#else
+//            string connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+//            services.AddDbContext<ApplicationDbContext>(options =>
+//                options.UseMySql(AzureMySQL.ToMySQLStandard(connectionString)));
+//                    //Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
+//#endif
 
             services.AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
@@ -74,12 +76,27 @@ namespace ChurchGivingRecorder
 
             app.UseAuthentication();
 
+            UpdateDatabase(app);
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Deposits}/{action=Index}/{id?}");
             });
+        }
+
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
         }
     }
 }

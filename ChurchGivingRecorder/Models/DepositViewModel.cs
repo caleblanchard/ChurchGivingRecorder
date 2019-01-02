@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Models
 {
-    public class Deposit
+    public class DepositViewModel
     {
-        [Required, Key]
         public int Id { get; set; }
 
         [DataType(DataType.Date)]
@@ -17,7 +16,5 @@ namespace ChurchGivingRecorder.Models
 
         [Display(Name = "Description")]
         public string Description { get; set; }
-
-        public virtual List<Gift> Gifts { get; set; }
     }
 }

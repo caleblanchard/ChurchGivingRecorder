@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
+using NonFactors.Mvc.Lookup;
 
 namespace ChurchGivingRecorder.Controllers
 {
@@ -23,6 +24,15 @@ namespace ChurchGivingRecorder.Controllers
         public IActionResult Index()
         {
             return View(_context.Set<Giver>());
+        }
+
+        [HttpGet]
+        public JsonResult AllGivers(LookupFilter filter)
+        {
+            GiverLookup lookup = new GiverLookup(_context);
+            lookup.Filter = filter;
+
+            return Json(lookup.GetData());
         }
 
         // GET: Givers/Details/5

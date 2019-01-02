@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - ChurchGivingRecorder</title>
 
     <link href="~/Content/MvcGrid/mvc-grid.css" rel="stylesheet">
+    <link href="~/Content/MvcLookup/mvc-lookup.css" rel="stylesheet">
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     </environment>
@@ -19,6 +20,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+    @Html.Partial("MvcLookup/_Dialog")
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -62,6 +64,12 @@
         [].forEach.call(document.getElementsByClassName('mvc-grid'), function (element) {
             new MvcGrid(element);
         });
+    </script>
+    <script src="~/Scripts/MvcLookup/mvc-lookup.js"></script>
+    <script>
+        [].forEach.call(document.getElementsByClassName('mvc-lookup'), function (element) {
+                       new MvcLookup(element);
+                   });
     </script>
 
     <environment include="Development">
