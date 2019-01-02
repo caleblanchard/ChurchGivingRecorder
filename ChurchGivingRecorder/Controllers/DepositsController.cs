@@ -60,7 +60,7 @@ namespace ChurchGivingRecorder.Controllers
             {
                 _context.Add(deposit);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Edit), new { Id = deposit.Id });
             }
             return PartialView(deposit);
         }
@@ -78,7 +78,8 @@ namespace ChurchGivingRecorder.Controllers
             {
                 return NotFound();
             }
-            return PartialView(deposit);
+            deposit.Gifts = await _context.Gifts.Include(g => g.Giver).Where(g => g.DepositId == deposit.Id).ToListAsync();
+            return View(deposit);
         }
 
         // POST: Deposits/Edit/5
@@ -113,7 +114,7 @@ namespace ChurchGivingRecorder.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return PartialView(deposit);
+            return View(deposit);
         }
 
         // GET: Deposits/Delete/5

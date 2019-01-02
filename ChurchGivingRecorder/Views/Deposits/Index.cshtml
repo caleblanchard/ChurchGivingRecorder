@@ -14,7 +14,7 @@
             .Grid(Model)
             .Build(columns =>
             {
-                columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", new { Id = model.Id }, new { data_target = "#createEditModal", data_toggle = "modal" })).Titled("Deposit Id");
+                columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", new { Id = model.Id })).Titled("Deposit Id");
                 columns.Add(model => model.DepositDate.ToString("MM/dd/yyyy")).Titled("Deposit Date");
                 columns.Add(model => model.Description).Titled("Description");
             })
