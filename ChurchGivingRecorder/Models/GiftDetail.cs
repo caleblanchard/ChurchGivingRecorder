@@ -16,6 +16,7 @@ namespace ChurchGivingRecorder.Models
         public Gift Gift { get; set; }
 
         [Display(Name = "Amount")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:c}")]
         public double Amount { get; set; }
 
         public int FundId { get; set; }

@@ -1,4 +1,4 @@
-﻿@model ChurchGivingRecorder.Models.Gift
+﻿@model ChurchGivingRecorder.Models.GiftViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -64,18 +64,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.GiftDetails)
+                    @for (int i = 0; i < Model.GiftDetails.Count<GiftDetail>(); i++)
                     {
                         <tr>
                             <td>
-                                @Html.HiddenFor(modelItem => item.Id)
-                                @Html.DisplayFor(modelItem => item.Fund.Name)
+                                @Html.HiddenFor(modelItem => Model.GiftDetails[i].Id)
+                                @Html.HiddenFor(modelItem => Model.GiftDetails[i].FundId)
+                                @Html.DisplayFor(modelItem => Model.GiftDetails[i].Fund.Name)
                             </td>
                             <td>
-                                @Html.EditorFor(modelItem => item.Amount)
+                                @Html.EditorFor(modelItem => Model.GiftDetails[i].Amount)
                             </td>
                             <td>
-                                @Html.EditorFor(modelItem => item.Comment)
+                                @Html.EditorFor(modelItem => Model.GiftDetails[i].Comment)
                             </td>
                         </tr>
                     }

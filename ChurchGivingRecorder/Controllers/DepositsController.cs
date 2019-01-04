@@ -46,7 +46,11 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Deposits/Create
         public IActionResult Create()
         {
-            return PartialView();
+            Deposit deposit = new Deposit()
+            {
+                DepositDate = DateTime.Today
+            };
+            return PartialView(deposit);
         }
 
         // POST: Deposits/Create
@@ -79,6 +83,12 @@ namespace ChurchGivingRecorder.Controllers
                 return NotFound();
             }
             deposit.Gifts = await _context.Gifts.Include(g => g.Giver).Where(g => g.DepositId == deposit.Id).ToListAsync();
+            
+            foreach (var gift in deposit.Gifts)
+            {
+                gift.TotalAmount = await _context.GiftDetails.Where(gd => gd.GiftId == gift.Id).SumAsync(gd => gd.Amount);
+            }
+
             return View(deposit);
         }
 
@@ -132,7 +142,7 @@ namespace ChurchGivingRecorder.Controllers
                 return NotFound();
             }
 
-            return View(deposit);
+            return PartialView(deposit);
         }
 
         // POST: Deposits/Delete/5

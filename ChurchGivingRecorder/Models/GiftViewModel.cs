@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChurchGivingRecorder.Models
 {
-    public class Gift
+    public class GiftViewModel
     {
         [Required, Key]
         public long Id { get; set; }
@@ -34,8 +33,6 @@ namespace ChurchGivingRecorder.Models
         [Display(Name = "Description")]
         public string Description { get; set; }
 
-        [NotMapped]
-        [DisplayFormat(DataFormatString = "{0:c}")]
-        public double TotalAmount { get; set; }
+        public GiftDetail[] GiftDetails { get; set; }
     }
 }

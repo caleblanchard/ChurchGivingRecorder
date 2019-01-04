@@ -49,7 +49,7 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Gifts/Create
         public async Task<IActionResult> Create(int? id)
         {
-            Gift gift = new Gift();
+            GiftViewModel gift = new GiftViewModel();
             if (id != null)
             {
                 var deposit = await _context.Deposits.FindAsync(id);
@@ -57,13 +57,14 @@ namespace ChurchGivingRecorder.Controllers
                 gift.DepositId = id ?? 0;
                 gift.GiftDate = deposit.DepositDate;
 
-                gift.GiftDetails = new List<GiftDetail>();
+                var giftDetails = new List<GiftDetail>();
                 int i = 1;
                 foreach (var fund in _context.Funds)
                 {
-                    gift.GiftDetails.Add(new GiftDetail { Id = i, FundId = fund.Id, Fund = fund });
+                    giftDetails.Add(new GiftDetail { Id = i, FundId = fund.Id, Fund = fund });
                     i++;
                 }
+                gift.GiftDetails = giftDetails.ToArray();
             }
 
             return PartialView(gift);
@@ -74,16 +75,42 @@ namespace ChurchGivingRecorder.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DepositId,GiverId,GiftDate,PaymentMethod,CheckNumber,Description,GiftDetails")] Gift gift)
+        public async Task<IActionResult> Create([Bind("DepositId,GiverId,GiftDate,PaymentMethod,CheckNumber,Description,GiftDetails")] GiftViewModel giftViewModel)
         {
             if (ModelState.IsValid)
             {
+                var gift = new Gift()
+                {
+                    DepositId = giftViewModel.DepositId,
+                    GiverId = giftViewModel.GiverId,
+                    GiftDate = giftViewModel.GiftDate,
+                    PaymentMethod = giftViewModel.PaymentMethod,
+                    CheckNumber = giftViewModel.CheckNumber,
+                    Description = giftViewModel.Description
+                };
                 _context.Add(gift);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                foreach (var giftDetail in giftViewModel.GiftDetails)
+                {
+                    //if (giftDetail.Amount != 0.0)
+                    //{
+                        GiftDetail giftDetailInsert = new GiftDetail()
+                        {
+                            GiftId = gift.Id,
+                            FundId = giftDetail.FundId,
+                            Amount = giftDetail.Amount,
+                            Comment = giftDetail.Comment
+                        };
+                        _context.GiftDetails.Add(giftDetailInsert);
+                    //}
+                }
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Edit), "Deposits", new { Id = gift.DepositId });
             }
 
-            return PartialView(gift);
+            return PartialView(giftViewModel);
         }
 
         // GET: Gifts/Edit/5
@@ -95,12 +122,22 @@ namespace ChurchGivingRecorder.Controllers
             }
 
             var gift = await _context.Gifts.FindAsync(id);
+            
             if (gift == null)
             {
                 return NotFound();
             }
-            gift.GiftDetails = await _context.GiftDetails.Where(gd => gd.GiftId == id).ToListAsync();
-            return PartialView(gift);
+            var giftViewModel = new GiftViewModel()
+            {
+                DepositId = gift.DepositId,
+                GiverId = gift.GiverId,
+                GiftDate = gift.GiftDate,
+                PaymentMethod = gift.PaymentMethod,
+                CheckNumber = gift.CheckNumber,
+                Description = gift.Description
+            };
+            giftViewModel.GiftDetails = await _context.GiftDetails.Include(gd => gd.Fund).Where(gd => gd.GiftId == id).ToArrayAsync();
+            return PartialView(giftViewModel);
         }
 
         // POST: Gifts/Edit/5
@@ -108,9 +145,9 @@ namespace ChurchGivingRecorder.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,DepositId,GiverId,GiftDate,PaymentMethod,CheckNumber,Description")] Gift gift)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,DepositId,GiverId,GiftDate,PaymentMethod,CheckNumber,Description")] GiftViewModel giftViewModel)
         {
-            if (id != gift.Id)
+            if (id != giftViewModel.Id)
             {
                 return NotFound();
             }
@@ -119,12 +156,21 @@ namespace ChurchGivingRecorder.Controllers
             {
                 try
                 {
+                    var gift = new Gift()
+                    {
+                        DepositId = giftViewModel.DepositId,
+                        GiverId = giftViewModel.GiverId,
+                        GiftDate = giftViewModel.GiftDate,
+                        PaymentMethod = giftViewModel.PaymentMethod,
+                        CheckNumber = giftViewModel.CheckNumber,
+                        Description = giftViewModel.Description
+                    };
                     _context.Update(gift);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GiftExists(gift.Id))
+                    if (!GiftExists(giftViewModel.Id))
                     {
                         return NotFound();
                     }
@@ -135,7 +181,7 @@ namespace ChurchGivingRecorder.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return PartialView(gift);
+            return PartialView(giftViewModel);
         }
 
         // GET: Gifts/Delete/5
@@ -155,7 +201,7 @@ namespace ChurchGivingRecorder.Controllers
                 return NotFound();
             }
 
-            return View(gift);
+            return PartialView(gift);
         }
 
         // POST: Gifts/Delete/5
@@ -164,9 +210,10 @@ namespace ChurchGivingRecorder.Controllers
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             var gift = await _context.Gifts.FindAsync(id);
+            var depositId = gift.DepositId;
             _context.Gifts.Remove(gift);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Edit), "Deposits", new { Id = depositId });
         }
 
         private bool GiftExists(long id)
