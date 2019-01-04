@@ -129,6 +129,7 @@ namespace ChurchGivingRecorder.Controllers
             }
             var giftViewModel = new GiftViewModel()
             {
+                Id = gift.Id,
                 DepositId = gift.DepositId,
                 GiverId = gift.GiverId,
                 GiftDate = gift.GiftDate,
@@ -145,7 +146,7 @@ namespace ChurchGivingRecorder.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,DepositId,GiverId,GiftDate,PaymentMethod,CheckNumber,Description")] GiftViewModel giftViewModel)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,DepositId,GiverId,GiftDate,PaymentMethod,CheckNumber,Description,GiftDetails")] GiftViewModel giftViewModel)
         {
             if (id != giftViewModel.Id)
             {
@@ -154,18 +155,34 @@ namespace ChurchGivingRecorder.Controllers
 
             if (ModelState.IsValid)
             {
+                var gift = new Gift()
+                {
+                    Id = giftViewModel.Id,
+                    DepositId = giftViewModel.DepositId,
+                    GiverId = giftViewModel.GiverId,
+                    GiftDate = giftViewModel.GiftDate,
+                    PaymentMethod = giftViewModel.PaymentMethod,
+                    CheckNumber = giftViewModel.CheckNumber,
+                    Description = giftViewModel.Description
+                };
                 try
                 {
-                    var gift = new Gift()
-                    {
-                        DepositId = giftViewModel.DepositId,
-                        GiverId = giftViewModel.GiverId,
-                        GiftDate = giftViewModel.GiftDate,
-                        PaymentMethod = giftViewModel.PaymentMethod,
-                        CheckNumber = giftViewModel.CheckNumber,
-                        Description = giftViewModel.Description
-                    };
                     _context.Update(gift);
+                    foreach (var giftDetail in giftViewModel.GiftDetails)
+                    {
+                        //if (giftDetail.Amount != 0.0)
+                        //{
+                        GiftDetail giftDetailInsert = new GiftDetail()
+                        {
+                            Id = giftDetail.Id,
+                            GiftId = gift.Id,
+                            FundId = giftDetail.FundId,
+                            Amount = giftDetail.Amount,
+                            Comment = giftDetail.Comment
+                        };
+                        _context.GiftDetails.Update(giftDetailInsert);
+                        //}
+                    }
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -179,7 +196,7 @@ namespace ChurchGivingRecorder.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Edit), "Deposits", new { Id = gift.DepositId });
             }
             return PartialView(giftViewModel);
         }

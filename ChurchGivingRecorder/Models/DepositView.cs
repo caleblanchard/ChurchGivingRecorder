@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Models
 {
-    public class Deposit
+    public class DepositView
     {
-        [Required, Key]
         public int Id { get; set; }
 
         [DataType(DataType.Date)]
@@ -19,7 +18,6 @@ namespace ChurchGivingRecorder.Models
         [Display(Name = "Description")]
         public string Description { get; set; }
 
-        [NotMapped]
         [DisplayFormat(DataFormatString = "{0:c}")]
         public double TotalAmount { get; set; }
     }

@@ -15,9 +15,19 @@ namespace ChurchGivingRecorder.Data
         public DbSet<Gift> Gifts { get; set; }
         public DbSet<GiftDetail> GiftDetails { get; set; }
 
+        public DbQuery<DepositView> DepositView { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder
+                .Query<DepositView>().ToView("DepositView");
         }
     }
 }

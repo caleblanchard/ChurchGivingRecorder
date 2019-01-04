@@ -1,4 +1,4 @@
-﻿@model ChurchGivingRecorder.Models.Deposit
+﻿@model ChurchGivingRecorder.Models.DepositViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -22,6 +22,11 @@
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalAmount" class="control-label"></label>
+                <input asp-for="TotalAmount" readonly class="form-control" />
+                <span asp-validation-for="TotalAmount" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

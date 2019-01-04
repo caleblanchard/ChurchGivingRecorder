@@ -22,7 +22,7 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Deposits
         public IActionResult Index()
         {
-            return View(_context.Set<Deposit>());
+            return View(_context.Query<DepositView>());
         }
 
         // GET: Deposits/Details/5
@@ -82,14 +82,21 @@ namespace ChurchGivingRecorder.Controllers
             {
                 return NotFound();
             }
-            deposit.Gifts = await _context.Gifts.Include(g => g.Giver).Where(g => g.DepositId == deposit.Id).ToListAsync();
+            var depositViewModel = new DepositViewModel()
+            {
+                Id = deposit.Id,
+                Description = deposit.Description,
+                DepositDate = deposit.DepositDate,
+                Gifts = await _context.Gifts.Include(g => g.Giver).Where(g => g.DepositId == deposit.Id).ToListAsync()
+            };
             
-            foreach (var gift in deposit.Gifts)
+            foreach (var gift in depositViewModel.Gifts)
             {
                 gift.TotalAmount = await _context.GiftDetails.Where(gd => gd.GiftId == gift.Id).SumAsync(gd => gd.Amount);
+                depositViewModel.TotalAmount += gift.TotalAmount;
             }
 
-            return View(deposit);
+            return View(depositViewModel);
         }
 
         // POST: Deposits/Edit/5
