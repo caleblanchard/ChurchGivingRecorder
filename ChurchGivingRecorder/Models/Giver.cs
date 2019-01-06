@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NonFactors.Mvc.Lookup;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,10 +14,14 @@ namespace ChurchGivingRecorder.Models
         public int Id { get; set; }
 
         [Display(Name = "Envelope Number")]
+        [LookupColumn(Filterable = true)]
         public int EnvelopeID { get; set; }
+
+        public string EnvelopIdString { get; set; }
 
         [Display(Name = "Name")]
         [MaxLength(255)]
+        [LookupColumn(Filterable = true)]
         public string Name { get; set; }
 
         [Display(Name = "Address")]

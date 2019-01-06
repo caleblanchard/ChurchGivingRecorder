@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using ChurchGivingRecorder.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +21,9 @@ namespace ChurchGivingRecorder.Data
 
         public DbQuery<DepositView> DepositView { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor contextAccessor)
             : base(options)
         {
         }
@@ -28,6 +34,28 @@ namespace ChurchGivingRecorder.Data
 
             builder
                 .Query<DepositView>().ToView("DepositView");
+        }
+
+        public override int SaveChanges()
+        {
+            UpdateEnvelopeIdString();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            UpdateEnvelopeIdString();
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void UpdateEnvelopeIdString()
+        {
+            var entities = ChangeTracker.Entries().Where(x => x.Entity is Giver && (x.State == EntityState.Added || x.State == EntityState.Modified));
+
+            foreach (var entity in entities)
+            {
+                ((Giver)entity.Entity).EnvelopIdString = $"{((Giver)entity.Entity).EnvelopeID}";
+            }
         }
     }
 }

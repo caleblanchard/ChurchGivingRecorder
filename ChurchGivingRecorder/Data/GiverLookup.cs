@@ -17,7 +17,7 @@ namespace ChurchGivingRecorder.Data
 
             Columns = new List<LookupColumn>
             {
-                new LookupColumn("EnvelopeID", "Envelope Id") { Filterable = true },
+                new LookupColumn("EnvelopIdString", "Envelope Id") { Filterable = true },
                 new LookupColumn("Name", "Giver Name") { Filterable = true }
             };
 
@@ -32,7 +32,7 @@ namespace ChurchGivingRecorder.Data
 
             Columns = new List<LookupColumn>
             {
-                new LookupColumn("EnvelopeID", "Envelope Id") { Filterable = true },
+                new LookupColumn("EnvelopIdString", "Envelope Id") { Filterable = true },
                 new LookupColumn("Name", "Giver Name") { Filterable = true }
             };
 
