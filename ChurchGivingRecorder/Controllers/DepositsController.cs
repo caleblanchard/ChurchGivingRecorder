@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChurchGivingRecorder.Controllers
 {
+    [Authorize]
     public class DepositsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +24,7 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Deposits
         public IActionResult Index()
         {
-            return View(_context.Set<Deposit>());
+            return View(_context.Query<DepositView>());
         }
 
         // GET: Deposits/Details/5
@@ -46,7 +48,11 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Deposits/Create
         public IActionResult Create()
         {
-            return PartialView();
+            Deposit deposit = new Deposit()
+            {
+                DepositDate = DateTime.Today
+            };
+            return PartialView(deposit);
         }
 
         // POST: Deposits/Create
@@ -78,8 +84,44 @@ namespace ChurchGivingRecorder.Controllers
             {
                 return NotFound();
             }
-            deposit.Gifts = await _context.Gifts.Include(g => g.Giver).Where(g => g.DepositId == deposit.Id).ToListAsync();
-            return View(deposit);
+            var depositViewModel = new DepositViewModel()
+            {
+                Id = deposit.Id,
+                Description = deposit.Description,
+                DepositDate = deposit.DepositDate,
+                Gifts = await _context.Gifts.Include(g => g.Giver).Where(g => g.DepositId == deposit.Id).ToListAsync()
+            };
+            
+            foreach (var gift in depositViewModel.Gifts)
+            {
+                gift.TotalAmount = await _context.GiftDetails.Where(gd => gd.GiftId == gift.Id).SumAsync(gd => gd.Amount);
+                depositViewModel.TotalAmount += gift.TotalAmount;
+            }
+
+            var fundTotalQuery = from gd in _context.GiftDetails
+                                 join g in _context.Gifts on gd.GiftId equals g.Id
+                                 join f in _context.Funds on gd.FundId equals f.Id
+                                 where g.DepositId == id
+                                 group new { f, gd } by new { gd.FundId, f.Name } into n
+                                 select new
+                                 {
+                                     n.Key.FundId,
+                                     n.Key.Name,
+                                     Sum = n.Sum(x => x.gd.Amount),
+                                 };
+            depositViewModel.FundTotals = new List<FundTotalViewModel>();
+            foreach (var fundTotal in fundTotalQuery)
+            {
+                var fundTotalViewModel = new FundTotalViewModel()
+                {
+                    Amount = fundTotal.Sum,
+                    FundId = fundTotal.FundId,
+                    FundName = fundTotal.Name
+                };
+                depositViewModel.FundTotals.Add(fundTotalViewModel);
+            }
+
+            return View(depositViewModel);
         }
 
         // POST: Deposits/Edit/5
@@ -132,7 +174,7 @@ namespace ChurchGivingRecorder.Controllers
                 return NotFound();
             }
 
-            return View(deposit);
+            return PartialView(deposit);
         }
 
         // POST: Deposits/Delete/5

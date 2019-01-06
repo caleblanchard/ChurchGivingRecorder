@@ -4,6 +4,23 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>aspnet-ChurchGivingRecorder-625813B4-8CA9-441D-BC9F-633F84C06EEA</UserSecretsId>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <Configurations>Debug;Release;DebugMySQL;ReleaseMySQL</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMySQL|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;MYSQL</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMySQL|AnyCPU'">
+    <DefineConstants>TRACE;MYSQL</DefineConstants>
   </PropertyGroup>
 
 

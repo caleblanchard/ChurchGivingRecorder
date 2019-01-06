@@ -17,6 +17,7 @@
                         //columns.Add(model => model.Id).Titled("Fund ID");
                         columns.Add(model => model.Name).Titled("Fund Name");
                         columns.Add(model => model.Description).Titled("Description");
+                        columns.Add(model => Html.ActionLink($"Delete", "Delete", new { Id = model.Id, }, new { @class = "btn btn-danger btn-sm", data_target = "#createEditModal", data_toggle = "modal" }));
                     })
                     .Empty("No data found")
                     .Filterable()

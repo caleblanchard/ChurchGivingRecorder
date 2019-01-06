@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ChurchGivingRecorder.Models.Deposit>
+﻿@model IEnumerable<ChurchGivingRecorder.Models.DepositView>
 
 @{
     ViewData["Title"] = "Deposits";
@@ -17,6 +17,7 @@
                 columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", new { Id = model.Id })).Titled("Deposit Id");
                 columns.Add(model => model.DepositDate.ToString("MM/dd/yyyy")).Titled("Deposit Date");
                 columns.Add(model => model.Description).Titled("Description");
+                columns.Add(model => string.Format("{0:c}", model.TotalAmount)).Titled("Total Amount");
             })
             .Empty("No data found")
             .Filterable()

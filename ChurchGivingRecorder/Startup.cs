@@ -36,20 +36,21 @@ namespace ChurchGivingRecorder
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-//#if DEBUG
+#if MYSQL
+            string connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseMySql(AzureMySQL.ToMySQLStandard(connectionString)));
+#else
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-//#else
-//            string connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
-//            services.AddDbContext<ApplicationDbContext>(options =>
-//                options.UseMySql(AzureMySQL.ToMySQLStandard(connectionString)));
-//                    //Configuration.GetConnectionString("MYSQLCONNSTR_localdb")));
-//#endif
+#endif
 
             services.AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -76,7 +77,9 @@ namespace ChurchGivingRecorder
 
             app.UseAuthentication();
 
+#if MYSQL
             UpdateDatabase(app);
+#endif
 
             app.UseMvc(routes =>
             {

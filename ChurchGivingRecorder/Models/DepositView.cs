@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Models
 {
-    public class DepositViewModel
+    public class DepositView
     {
         public int Id { get; set; }
 
@@ -18,12 +18,7 @@ namespace ChurchGivingRecorder.Models
         [Display(Name = "Description")]
         public string Description { get; set; }
 
-        public List<Gift> Gifts { get; set; }
-
-        [NotMapped]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:N2}")]
+        [DisplayFormat(DataFormatString = "{0:c}")]
         public decimal TotalAmount { get; set; }
-
-        public List<FundTotalViewModel> FundTotals { get; set; }
     }
 }

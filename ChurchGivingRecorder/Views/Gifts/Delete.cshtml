@@ -4,54 +4,49 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<form asp-action="Delete">
+    <div class="modal-header">
+        <h5 class="modal-title" id="createEditModalLabel">Delete Gift</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <h3>Are you sure you want to delete this?</h3>
+        <div>
+            <hr />
+            <input type="hidden" asp-for="Id" />
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Giver)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Giver.Name)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.GiftDate)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.GiftDate)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.PaymentMethod)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.PaymentMethod)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Description)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Description)
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <input type="submit" value="Delete" class="btn btn-danger" />
+    </div>
+</form>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Gift</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Deposit)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Deposit.Id)
-        </dd class>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Giver)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Giver.Id)
-        </dd class>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GiftDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GiftDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PaymentMethod)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PaymentMethod)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CheckNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CheckNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div>

@@ -13,7 +13,11 @@ namespace ChurchGivingRecorder.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
+#if MYSQL
+                    .Annotation("MySql:ValueGeneratedOnAdd", true),
+#else
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+#endif
                     DepositDate = table.Column<DateTime>(nullable: false),
                     Description = table.Column<string>(nullable: true)
                 },
@@ -27,7 +31,11 @@ namespace ChurchGivingRecorder.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
+#if MYSQL
+                    .Annotation("MySql:ValueGeneratedOnAdd", true),
+#else
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+#endif
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true)
                 },
@@ -41,7 +49,11 @@ namespace ChurchGivingRecorder.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
+#if MYSQL
+                    .Annotation("MySql:ValueGeneratedOnAdd", true),
+#else
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+#endif
                     EnvelopeID = table.Column<int>(nullable: false),
                     Name = table.Column<string>(maxLength: 255, nullable: true),
                     Address = table.Column<string>(nullable: true)
