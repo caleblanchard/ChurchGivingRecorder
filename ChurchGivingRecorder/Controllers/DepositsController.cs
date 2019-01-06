@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChurchGivingRecorder.Controllers
 {
+    [Authorize]
     public class DepositsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -94,6 +96,29 @@ namespace ChurchGivingRecorder.Controllers
             {
                 gift.TotalAmount = await _context.GiftDetails.Where(gd => gd.GiftId == gift.Id).SumAsync(gd => gd.Amount);
                 depositViewModel.TotalAmount += gift.TotalAmount;
+            }
+
+            var fundTotalQuery = from gd in _context.GiftDetails
+                                 join g in _context.Gifts on gd.GiftId equals g.Id
+                                 join f in _context.Funds on gd.FundId equals f.Id
+                                 where g.DepositId == id
+                                 group new { f, gd } by new { gd.FundId, f.Name } into n
+                                 select new
+                                 {
+                                     n.Key.FundId,
+                                     n.Key.Name,
+                                     Sum = n.Sum(x => x.gd.Amount),
+                                 };
+            depositViewModel.FundTotals = new List<FundTotalViewModel>();
+            foreach (var fundTotal in fundTotalQuery)
+            {
+                var fundTotalViewModel = new FundTotalViewModel()
+                {
+                    Amount = fundTotal.Sum,
+                    FundId = fundTotal.FundId,
+                    FundName = fundTotal.Name
+                };
+                depositViewModel.FundTotals.Add(fundTotalViewModel);
             }
 
             return View(depositViewModel);

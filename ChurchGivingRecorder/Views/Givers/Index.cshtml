@@ -16,6 +16,7 @@
                     columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", new { Id = model.Id }, new { data_target = "#createEditModal", data_toggle = "modal" })).Titled("Giver Id");
                     columns.Add(model => model.EnvelopeID).Titled("Envelope ID");
                     columns.Add(model => model.Name).Titled("Giver Name");
+                    columns.Add(model => Html.ActionLink($"Delete", "Delete", new { Id = model.Id, }, new { @class = "btn btn-danger btn-sm", data_target = "#createEditModal", data_toggle = "modal" }));
                 })
                 .Empty("No data found")
                 .Filterable()

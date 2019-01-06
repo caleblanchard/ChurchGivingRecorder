@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
 using NonFactors.Mvc.Lookup;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChurchGivingRecorder.Controllers
 {
+    [Authorize]
     public class GiversController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -141,7 +143,7 @@ namespace ChurchGivingRecorder.Controllers
                 return NotFound();
             }
 
-            return View(giver);
+            return PartialView(giver);
         }
 
         // POST: Givers/Delete/5

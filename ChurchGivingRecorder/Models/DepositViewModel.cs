@@ -22,6 +22,8 @@ namespace ChurchGivingRecorder.Models
 
         [NotMapped]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:N2}")]
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
+
+        public List<FundTotalViewModel> FundTotals { get; set; }
     }
 }

@@ -36,24 +36,50 @@
     </div>
 </div>
 
-    <p>
-            <a asp-controller="Gifts" asp-action="Create" asp-route-id="@Model.Id" data-target="#createEditModal" data-toggle="modal">Create New</a>
-    </p>
-    <div class="row">
-        @(Html
-                                        .Grid(Model.Gifts)
-                                        .Build(columns =>
-                                        {
-                                            columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", "Gifts", new { Id = model.Id }, new { data_target = "#createEditModal", data_toggle = "modal" })).Titled("Gift Id");
-                                            columns.Add(model => model.Giver.Name).Titled("Giver Name");
-                                            columns.Add(model => model.PaymentMethod).Titled("Payment Method");
-                                            columns.Add(model => model.Description).Titled("Description");
-                                            columns.Add(model => string.Format("{0:c}", model.TotalAmount)).Titled("Total Amount");
-                                            columns.Add(model => Html.ActionLink($"Delete", "Delete", "Gifts", new { Id = model.Id, }, new { @class = "btn btn-danger btn-sm", data_target = "#createEditModal", data_toggle = "modal" }));
-                                        })
-                                        .Empty("No data found")
-        )
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#gifts" role="tab" aria-controls="gifts" aria-selected="true">Gifts</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#fundTotals" role="tab" aria-controls="fundTotals" aria-selected="false">Fund Totals</a>
+    </li>
+</ul>
+<div class="tab-content pb-3" id="myTabContent">
+    <div class="tab-pane fade show active pt-1" id="gifts" role="tabpanel" aria-labelledby="gifts-tab">
+        <p>
+            <a asp-controller="Gifts" asp-action="Create" asp-route-id="@Model.Id" data-target="#createEditModal" data-toggle="modal">Create New Gift</a>
+        </p>
+        <div class="row mt-1 ml-2">
+            @(Html
+                                                            .Grid(Model.Gifts)
+                                                            .Build(columns =>
+                                                            {
+                                                                columns.Add(model => Html.ActionLink($"{model.Id}", "Edit", "Gifts", new { Id = model.Id }, new { data_target = "#createEditModal", data_toggle = "modal" })).Titled("Gift Id");
+                                                                columns.Add(model => model.Giver.Name).Titled("Giver Name");
+                                                                columns.Add(model => model.PaymentMethod).Titled("Payment Method");
+                                                                columns.Add(model => model.Description).Titled("Description");
+                                                                columns.Add(model => string.Format("{0:c}", model.TotalAmount)).Titled("Total Amount");
+                                                                columns.Add(model => Html.ActionLink($"Delete", "Delete", "Gifts", new { Id = model.Id, }, new { @class = "btn btn-danger btn-sm", data_target = "#createEditModal", data_toggle = "modal" }));
+                                                            })
+                                                            .Empty("No data found")
+            )
+        </div>
     </div>
+    <div class="tab-pane fade" id="fundTotals" role="tabpanel" aria-labelledby="fundTotals-tab">
+        <div class="row pt-3 ml-2">
+            @(Html
+                .Grid(Model.FundTotals)
+                .Build(columns =>
+                {
+                    columns.Add(model => model.FundName).Titled("Fund Name");
+                    columns.Add(model => string.Format("{0:c}", model.Amount)).Titled("Total Amount");
+                })
+                .Empty("No data found")
+            )
+        </div>
+    </div>
+</div>
+
 
 <div>
     <a asp-action="Index">Back to List</a>

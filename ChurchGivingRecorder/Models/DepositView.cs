@@ -19,6 +19,6 @@ namespace ChurchGivingRecorder.Models
         public string Description { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:c}")]
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }
