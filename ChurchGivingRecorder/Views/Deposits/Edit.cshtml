@@ -58,6 +58,7 @@
                                                                 columns.Add(model => model.Giver.Name).Titled("Giver Name");
                                                                 columns.Add(model => model.PaymentMethod).Titled("Payment Method");
                                                                 columns.Add(model => model.Description).Titled("Description");
+                                                                columns.Add(model => model.GiftDate.ToString("MM/dd/yyyy")).Titled("Gift Date");
                                                                 columns.Add(model => string.Format("{0:c}", model.TotalAmount)).Titled("Total Amount");
                                                                 columns.Add(model => Html.ActionLink($"Delete", "Delete", "Gifts", new { Id = model.Id, }, new { @class = "btn btn-danger btn-sm", data_target = "#createEditModal", data_toggle = "modal" }));
                                                             })
