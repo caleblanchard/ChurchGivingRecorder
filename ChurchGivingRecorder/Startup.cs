@@ -14,6 +14,8 @@ using ChurchGivingRecorder.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using kedzior.io.ConnectionStringConverter;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 namespace ChurchGivingRecorder
 {
@@ -51,6 +53,8 @@ namespace ChurchGivingRecorder
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

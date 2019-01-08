@@ -25,7 +25,7 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Givers
         public IActionResult Index()
         {
-            return View(_context.Set<Giver>());
+            return View(_context.Givers.OrderBy(g => g.EnvelopeID));
         }
 
         [HttpGet]
