@@ -1,0 +1,47 @@
+﻿@model ChurchGivingRecorder.Models.FundsReportData
+@{
+    ViewData["Title"] = "FundsReport";
+}
+
+<h1>FundsReport</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+    </dl>
+    <hr />
+
+    <div class="container">
+        @foreach (var fundTotal in Model.FundTotals)
+        {
+
+            <div class="row">
+                <div class="col">
+                    <h2>@Html.DisplayFor(modelItem => fundTotal.FundName)</h2>
+                </div>
+
+                <div class="container">
+                    @foreach (var data in fundTotal.Data)
+                    {
+                        <div class="row">
+                            <div class="col">@Html.DisplayFor(dataItem => data.Key)</div>
+                            <div class="col">@Html.DisplayFor(dataItem => data.Value)</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        </div>
+
+    </div>
