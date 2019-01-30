@@ -1,9 +1,9 @@
-﻿@model ChurchGivingRecorder.Models.FundsReportData
+﻿@model ChurchGivingRecorder.Models.GiversReportData
 @{
-    ViewData["Title"] = "FundsReport";
+    ViewData["Title"] = "GiversReport";
 }
 
-<h1>Funds Report</h1>
+<h1>Givers Report</h1>
 
 <div>
     <dl class="row">
@@ -23,16 +23,16 @@
     <hr />
 
     <div class="container">
-        @foreach (var fundTotal in Model.FundTotals)
+        @foreach (var giverTotal in Model.GiverTotals)
         {
 
             <div class="row pb-3">
                 <div class="col">
-                    <h2>@Html.DisplayFor(modelItem => fundTotal.FundName)</h2>
+                    <h3>@Html.DisplayFor(modelItem => giverTotal.GiverName)</h3>
                 </div>
 
                 <div class="container">
-                    @foreach (var data in fundTotal.Data)
+                    @foreach (var data in giverTotal.Data)
                     {
                         <div class="row">
                             <div class="col">@Html.DisplayFor(dataItem => data.Key)</div>
@@ -41,7 +41,7 @@
                     }
                     <div class="row">
                         <div class="col font-weight-bold">Total</div>
-                        <div class="col font-weight-bold text-right">@Html.DisplayFor(giverTotalItem => fundTotal.Total)</div>
+                        <div class="col font-weight-bold text-right">@Html.DisplayFor(giverTotalItem => giverTotal.Total)</div>
                     </div>
                 </div>
             </div>
