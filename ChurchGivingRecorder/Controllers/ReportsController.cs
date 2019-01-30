@@ -139,7 +139,7 @@ namespace ChurchGivingRecorder.Controllers
             {
                 StartDate = new DateTime(year, 1, 1),
                 EndDate = new DateTime(year, 12, 31),
-                Givers = await _context.Givers.OrderBy(g => g.EnvelopeNameDisplay).ToListAsync()
+                Givers = await _context.Givers.OrderBy(g => g.EnvelopeID).ToListAsync()
             };
             return View(giversReportParams);
         }
@@ -154,7 +154,7 @@ namespace ChurchGivingRecorder.Controllers
                 GiverTotals = new List<GiverTotals>()
             };
 
-            IQueryable<Giver> givers = _context.Givers.OrderBy(g => g.EnvelopIdString);
+            IQueryable<Giver> givers = _context.Givers.OrderBy(g => g.EnvelopeID);
 
             if (model.GiverId != 0)
             {
