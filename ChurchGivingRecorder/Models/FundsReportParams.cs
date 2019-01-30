@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Models
 {
-    public enum GroupBy
-    {
-        Year,
-        Month,
-        Day
-    }
-
     public class FundsReportParams
     {
         [DataType(DataType.Date)]
+        [Display(Name = "From Date")]
         public DateTime StartDate { get; set; }
 
         [DataType(DataType.Date)]
+        [Display(Name = "To Date")]
         public DateTime EndDate { get; set; }
 
+        [Display(Name = "Group By")]
         public GroupBy GroupBy { get; set; }
     }
 }

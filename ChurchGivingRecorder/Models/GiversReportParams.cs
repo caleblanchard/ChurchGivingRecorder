@@ -6,18 +6,8 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Models
 {
-    public class FundTotals
+    public class GiversReportParams
     {
-        public string FundName { get; set; }
-
-        public Dictionary<string, decimal> Data { get; set; }
-
-        public decimal Total { get; set; }
-    }
-
-    public class FundsReportData
-    {
-        #region Parameters
         [DataType(DataType.Date)]
         [Display(Name = "From Date")]
         public DateTime StartDate { get; set; }
@@ -25,10 +15,13 @@ namespace ChurchGivingRecorder.Models
         [DataType(DataType.Date)]
         [Display(Name = "To Date")]
         public DateTime EndDate { get; set; }
-        #endregion
 
-        public List<FundTotals> FundTotals { get; set; }
+        [Display(Name = "Giver")]
+        public int GiverId { get; set; }
 
-        public decimal Total { get; set; }
+        public List<Giver> Givers { get; set; }
+
+        [Display(Name = "Group By")]
+        public GroupBy GroupBy { get; set; }
     }
 }
