@@ -25,9 +25,9 @@
 
 
   <ItemGroup>
-    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="kedzior.io.ConnectionStringConverter" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.NodeServices" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
     <PackageReference Include="NonFactors.Grid.Mvc6" Version="4.0.2" />

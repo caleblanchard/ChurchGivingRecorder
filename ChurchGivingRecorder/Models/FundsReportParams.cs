@@ -18,5 +18,8 @@ namespace ChurchGivingRecorder.Models
 
         [Display(Name = "Group By")]
         public GroupBy GroupBy { get; set; }
+
+        [Display(Name = "Report Format")]
+        public ReportFormat ReportFormat { get; set; }
     }
 }

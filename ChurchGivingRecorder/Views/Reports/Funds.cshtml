@@ -23,6 +23,10 @@
                 <label asp-for="GroupBy" class="control-label"></label>
                 <select asp-for="GroupBy" asp-items="Html.GetEnumSelectList<ChurchGivingRecorder.Models.GroupBy>()" class="form-control"></select>
             </div>
+            <div class="form-group">
+                <label asp-for="ReportFormat" class="control-label"></label>
+                <select asp-for="ReportFormat" asp-items="Html.GetEnumSelectList<ChurchGivingRecorder.Models.ReportFormat>()" class="form-control"></select>
+            </div>
 
             <input type="submit" value="Generate Report" class="btn btn-primary" />
         </div>
