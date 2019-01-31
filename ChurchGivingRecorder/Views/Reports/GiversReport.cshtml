@@ -1,7 +1,6 @@
 ﻿@model ChurchGivingRecorder.Models.GiversReportData
 @{
-    ViewData["Title"] = "Givers Report";
-    Layout = "/Views/Shared/_LayoutReport.cshtml";
+    ViewData["Title"] = "GiversReport";
 }
 
 <h1>Givers Report</h1>
@@ -36,20 +35,20 @@
                     @foreach (var data in giverTotal.Data)
                     {
                         <div class="row">
-                            <div class="col-sm-3">@Html.DisplayFor(dataItem => data.Key)</div>
-                            <div class="col-sm-3 text-right">@Html.DisplayFor(dataItem => data.Value)</div>
+                            <div class="col">@Html.DisplayFor(dataItem => data.Key)</div>
+                            <div class="col text-right">@Html.DisplayFor(dataItem => data.Value)</div>
                         </div>
                     }
                     <div class="row">
-                        <div class="col-sm-3 font-weight-bold">Total</div>
-                        <div class="col-sm-3 font-weight-bold text-right">@Html.DisplayFor(giverTotalItem => giverTotal.Total)</div>
+                        <div class="col font-weight-bold">Total</div>
+                        <div class="col font-weight-bold text-right">@Html.DisplayFor(giverTotalItem => giverTotal.Total)</div>
                     </div>
                 </div>
             </div>
         }
         <div class="row">
-            <div class="col-sm-3 font-weight-bold" style="font-size: 1.2rem;">Total</div>
-            <div class="col-sm-3 font-weight-bold text-right" style="font-size: 1.2rem;">@Html.DisplayFor(m => Model.Total)</div>
+            <div class="col font-weight-bold" style="font-size: 1.2rem;">Total</div>
+            <div class="col font-weight-bold text-right" style="font-size: 1.2rem;">@Html.DisplayFor(m => Model.Total)</div>
         </div>
     </div>
 

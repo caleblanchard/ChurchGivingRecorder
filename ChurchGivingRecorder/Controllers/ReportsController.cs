@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.NodeServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChurchGivingRecorder.Controllers
@@ -14,14 +13,10 @@ namespace ChurchGivingRecorder.Controllers
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly ITemplateService _templateService;
-        private readonly INodeServices _nodeServices;
 
-        public ReportsController(ApplicationDbContext context, ITemplateService templateService, INodeServices nodeServices)
+        public ReportsController(ApplicationDbContext context)
         {
             _context = context;
-            _templateService = templateService;
-            _nodeServices = nodeServices;
         }
 
         public IActionResult Index()
@@ -41,7 +36,7 @@ namespace ChurchGivingRecorder.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Funds(FundsReportParams model)
+        public IActionResult Funds(FundsReportParams model)
         {
             FundsReportData reportData = new FundsReportData()
             {
@@ -132,27 +127,9 @@ namespace ChurchGivingRecorder.Controllers
                 }
                 reportData.Total += fundTotal.Total;
             }
+            
 
-            if (model.ReportFormat == ReportFormat.PDF)
-            {
-                string documentContent = await _templateService.RenderTemplateAsync(
-                    "Reports/FundsReport", reportData);
-
-                var result = await _nodeServices.InvokeAsync<byte[]>("./pdf", documentContent);
-
-                HttpContext.Response.ContentType = "application/pdf";
-
-                string filename = @"report.pdf";
-                HttpContext.Response.Headers.Add("x-filename", filename);
-                HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "x-filename");
-                HttpContext.Response.Body.Write(result, 0, result.Length);
-
-                return new ContentResult();
-            }
-            else
-            {
-                return View("FundsReport", reportData);
-            }
+            return View("FundsReport", reportData);
         }
 
         public async Task<IActionResult> Givers()
@@ -168,7 +145,7 @@ namespace ChurchGivingRecorder.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Givers(GiversReportParams model)
+        public IActionResult Givers(GiversReportParams model)
         {
             GiversReportData reportData = new GiversReportData()
             {
@@ -295,42 +272,7 @@ namespace ChurchGivingRecorder.Controllers
                 reportData.Total += giverTotal.Total;
             }
 
-            if (model.ReportFormat == ReportFormat.PDF)
-            {
-                string documentContent = await _templateService.RenderTemplateAsync(
-                    "Reports/GiversReport", reportData);
-
-                var result = await _nodeServices.InvokeAsync<byte[]>("./pdf", documentContent);
-
-                HttpContext.Response.ContentType = "application/pdf";
-
-                string filename = @"report.pdf";
-                HttpContext.Response.Headers.Add("x-filename", filename);
-                HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "x-filename");
-                HttpContext.Response.Body.Write(result, 0, result.Length);
-
-                return new ContentResult();
-            }
-            else
-            {
-                return View("GiversReport", reportData);
-            }
-        }
-
-        [HttpGet]
-        [Route("/exportpdf")]
-        public async Task<IActionResult> ExportPdf([FromServices] INodeServices nodeServices)
-        {
-            var result = await nodeServices.InvokeAsync<byte[]>("./pdf", "the data from a controller");
-
-            HttpContext.Response.ContentType = "application/pdf";
-
-            string filename = @"report.pdf";
-            HttpContext.Response.Headers.Add("x-filename", filename);
-            HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "x-filename");
-            HttpContext.Response.Body.Write(result, 0, result.Length);
-
-            return new ContentResult();
+            return View("GiversReport", reportData);
         }
     }
 }
