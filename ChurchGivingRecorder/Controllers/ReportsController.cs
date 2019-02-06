@@ -213,8 +213,11 @@ namespace ChurchGivingRecorder.Controllers
                             groupTotal += fundTotalRecord.Sum;
                             previousDate = fundTotalRecord.GiftDate;
                         }
-                        fundDataList.Add(fundTotalsId, groupTotal);
-                        giverTotal.Data.Add(previousDate.ToString("MM/dd/yyyy"), fundDataList);
+                        if (previousDate != DateTime.MinValue)
+                        {
+                            fundDataList.Add(fundTotalsId, groupTotal);
+                            giverTotal.Data.Add(previousDate.ToString("MM/dd/yyyy"), fundDataList);
+                        }
 
                         reportData.GiverTotals.Add(giverTotal);
                         break;
@@ -253,8 +256,11 @@ namespace ChurchGivingRecorder.Controllers
                             groupTotal += fundTotalRecord.Sum;
                             previousMonth = fundTotalRecord.Month;
                         }
-                        fundDataList.Add(fundTotalsId, groupTotal);
-                        giverTotal.Data.Add(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(previousMonth), fundDataList);
+                        if (previousMonth != 0)
+                        {
+                            fundDataList.Add(fundTotalsId, groupTotal);
+                            giverTotal.Data.Add(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(previousMonth), fundDataList);
+                        }
 
                         reportData.GiverTotals.Add(giverTotal);
                         break;
@@ -293,8 +299,11 @@ namespace ChurchGivingRecorder.Controllers
                             groupTotal += fundTotalRecord.Sum;
                             previousYear = fundTotalRecord.Year;
                         }
-                        fundDataList.Add(fundTotalsId, groupTotal);
-                        giverTotal.Data.Add(previousYear.ToString(), fundDataList);
+                        if (previousYear != 0)
+                        {
+                            fundDataList.Add(fundTotalsId, groupTotal);
+                            giverTotal.Data.Add(previousYear.ToString(), fundDataList);
+                        }
 
                         reportData.GiverTotals.Add(giverTotal);
                         break;
