@@ -6,13 +6,21 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Models
 {
+
+    public class FundData
+    {
+        public int FundId { get; set; }
+
+        public decimal Total { get; set; }
+    }
+
     public class GiverTotals
     {
         public string GiverName { get; set; }
 
-        public List<FundTotals> FundTotals { get; set; }
+        public Dictionary<string, Dictionary<int, decimal>> Data { get; set; }
 
-        public Dictionary<string, decimal> Data { get; set; }
+        public Dictionary<int, string> Funds { get; set; }
 
         public decimal Total { get; set; }
     }
