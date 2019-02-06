@@ -5,13 +5,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChurchGivingRecorder.Controllers
 {
+    [Authorize]
     public class ReportsController : Controller
     {
+        private const int fundTotalsId = Int16.MaxValue;
         private readonly ApplicationDbContext _context;
 
         public ReportsController(ApplicationDbContext context)
@@ -166,105 +169,132 @@ namespace ChurchGivingRecorder.Controllers
                 var giverTotal = new GiverTotals()
                 {
                     GiverName = giver.EnvelopeNameDisplay,
-                    FundTotals = new List<FundTotals>(),
-                    Data = new Dictionary<string, decimal>()
+                    Data = new Dictionary<string, Dictionary<int, decimal>>(),
+                    Funds = new  Dictionary<int, string>()
                 };
 
+                giverTotal.Funds.Add(fundTotalsId, "Total");
+
+                Dictionary<int, decimal> fundDataList = new Dictionary<int, decimal>();
+                decimal groupTotal = 0;
                 switch (model.GroupBy)
                 {
                     case GroupBy.Day:
 
-                        var giverDayTotalQuery = from gd in _context.GiftDetails
+                        var giverDayTotalQuery = from f in _context.Funds
+                                                join gd in _context.GiftDetails on f.Id equals gd.FundId
                                                 join g in _context.Gifts on gd.GiftId equals g.Id
                                                 where g.GiverId == giver.Id
                                                    && g.GiftDate >= model.StartDate
                                                    && g.GiftDate <= model.EndDate
-                                                group new { g, gd } by new { g.GiftDate } into n
+                                                group new { f, g, gd } by new { f.Id, f.Name, g.GiftDate }
+                                                into n
                                                 select new
                                                 {
+                                                    n.Key.Id,
+                                                    n.Key.Name,
                                                     n.Key.GiftDate,
                                                     Sum = n.Sum(x => x.gd.Amount),
                                                 };
-
-                        foreach (var fundTotalRecord in giverDayTotalQuery)
+                        DateTime previousDate = DateTime.MinValue;
+                        foreach (var fundTotalRecord in giverDayTotalQuery.OrderBy(g => g.GiftDate))
                         {
-                            giverTotal.Data.Add(fundTotalRecord.GiftDate.ToString("MM/dd/yyyy"), fundTotalRecord.Sum);
-                            giverTotal.Total += fundTotalRecord.Sum;
-                        }
-
-                        foreach (var fund in _context.Funds)
-                        {
-                            var fundDayTotalQuery = from gd in _context.GiftDetails
-                                                    join g in _context.Gifts on gd.GiftId equals g.Id
-                                                    where gd.FundId == fund.Id
-                                                        && g.GiftDate >= model.StartDate
-                                                       && g.GiftDate <= model.EndDate
-                                                    group new { g, gd } by new { g.GiftDate } into n
-                                                    select new
-                                                    {
-                                                        n.Key.GiftDate,
-                                                        Sum = n.Sum(x => x.gd.Amount),
-                                                    };
-                            var fundTotal = new FundTotals()
+                            if (previousDate != DateTime.MinValue && previousDate != fundTotalRecord.GiftDate)
                             {
-                                FundName = fund.Name,
-                                Data = new Dictionary<string, decimal>()
-                            };
-
-                            foreach (var fundTotalRecord in fundDayTotalQuery)
-                            {
-                                fundTotal.Data.Add(fundTotalRecord.GiftDate.ToString("MM/dd/yyyy"), fundTotalRecord.Sum);
-                                fundTotal.Total += fundTotalRecord.Sum;
+                                fundDataList.Add(fundTotalsId, groupTotal);
+                                giverTotal.Data.Add(previousDate.ToString("MM/dd/yyyy"), fundDataList);
+                                fundDataList = new Dictionary<int, decimal>();
+                                groupTotal = 0;
                             }
-
-                            giverTotal.FundTotals.Add(fundTotal);
+                            giverTotal.Funds.TryAdd(fundTotalRecord.Id, fundTotalRecord.Name);
+                            fundDataList.Add(fundTotalRecord.Id, fundTotalRecord.Sum);
+                            
+                            giverTotal.Total += fundTotalRecord.Sum;
+                            groupTotal += fundTotalRecord.Sum;
+                            previousDate = fundTotalRecord.GiftDate;
                         }
+                        fundDataList.Add(fundTotalsId, groupTotal);
+                        giverTotal.Data.Add(previousDate.ToString("MM/dd/yyyy"), fundDataList);
 
                         reportData.GiverTotals.Add(giverTotal);
                         break;
 
                     case GroupBy.Month:
 
-                        var giverMonthTotalQuery = from gd in _context.GiftDetails
+                        var giverMonthTotalQuery = from f in _context.Funds
+                                                  join gd in _context.GiftDetails on f.Id equals gd.FundId
                                                   join g in _context.Gifts on gd.GiftId equals g.Id
                                                   where g.GiverId == giver.Id
                                                      && g.GiftDate >= model.StartDate
                                                      && g.GiftDate <= model.EndDate
-                                                  group new { g, gd } by new { g.GiftDate.Month } into n
+                                                  group new { f, g, gd } by new { f.Id, f.Name, g.GiftDate.Month } into n
                                                   select new
                                                   {
+                                                      n.Key.Id,
+                                                      n.Key.Name,
                                                       n.Key.Month,
                                                       Sum = n.Sum(x => x.gd.Amount),
                                                   };
 
-                        foreach (var fundTotalRecord in giverMonthTotalQuery)
+                        int previousMonth = 0;
+                        foreach (var fundTotalRecord in giverMonthTotalQuery.OrderBy(g => g.Month))
                         {
-                            giverTotal.Data.Add(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(fundTotalRecord.Month), fundTotalRecord.Sum);
+                            if (previousMonth != 0 && previousMonth != fundTotalRecord.Month)
+                            {
+                                fundDataList.Add(fundTotalsId, groupTotal);
+                                giverTotal.Data.Add(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(previousMonth), fundDataList);
+                                fundDataList = new Dictionary<int, decimal>();
+                                groupTotal = 0;
+                            }
+                            giverTotal.Funds.TryAdd(fundTotalRecord.Id, fundTotalRecord.Name);
+                            fundDataList.Add(fundTotalRecord.Id, fundTotalRecord.Sum);
+                            
                             giverTotal.Total += fundTotalRecord.Sum;
+                            groupTotal += fundTotalRecord.Sum;
+                            previousMonth = fundTotalRecord.Month;
                         }
+                        fundDataList.Add(fundTotalsId, groupTotal);
+                        giverTotal.Data.Add(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(previousMonth), fundDataList);
 
                         reportData.GiverTotals.Add(giverTotal);
                         break;
 
                     case GroupBy.Year:
 
-                        var giverYearTotalQuery = from gd in _context.GiftDetails
+                        var giverYearTotalQuery = from f in _context.Funds
+                                                  join gd in _context.GiftDetails on f.Id equals gd.FundId
                                                  join g in _context.Gifts on gd.GiftId equals g.Id
                                                  where g.GiverId == giver.Id
                                                     && g.GiftDate >= model.StartDate
                                                     && g.GiftDate <= model.EndDate
-                                                 group new { g, gd } by new { g.GiftDate.Year } into n
+                                                 group new { f, g, gd } by new { f.Id, f.Name, g.GiftDate.Year } into n
                                                  select new
                                                  {
+                                                     n.Key.Id,
+                                                     n.Key.Name,
                                                      n.Key.Year,
                                                      Sum = n.Sum(x => x.gd.Amount),
                                                  };
 
-                        foreach (var fundTotalRecord in giverYearTotalQuery)
+                        int previousYear = 0;
+                        foreach (var fundTotalRecord in giverYearTotalQuery.OrderBy(g => g.Year))
                         {
-                            giverTotal.Data.Add(fundTotalRecord.Year.ToString(), fundTotalRecord.Sum);
+                            if (previousYear != 0 && previousYear != fundTotalRecord.Year)
+                            {
+                                fundDataList.Add(fundTotalsId, groupTotal);
+                                giverTotal.Data.Add(previousYear.ToString(), fundDataList);
+                                fundDataList = new Dictionary<int, decimal>();
+                                groupTotal = 0;
+                            }
+                            giverTotal.Funds.TryAdd(fundTotalRecord.Id, fundTotalRecord.Name);
+                            fundDataList.Add(fundTotalRecord.Id, fundTotalRecord.Sum);
+                            
                             giverTotal.Total += fundTotalRecord.Sum;
+                            groupTotal += fundTotalRecord.Sum;
+                            previousYear = fundTotalRecord.Year;
                         }
+                        fundDataList.Add(fundTotalsId, groupTotal);
+                        giverTotal.Data.Add(previousYear.ToString(), fundDataList);
 
                         reportData.GiverTotals.Add(giverTotal);
                         break;

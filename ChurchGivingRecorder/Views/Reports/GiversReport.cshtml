@@ -33,11 +33,23 @@
                 </div>
 
                 <div class="container">
+                    <div class="row">
+                        <div class="col"></div>
+                        @foreach (var fund in giverTotal.Funds.OrderBy(f => f.Key))
+                        {
+                            <div class="col font-weight-bold text-right">@Html.DisplayFor(fundItem => fund.Value)</div>
+                        }
+                        
+                    </div>
                     @foreach (var data in giverTotal.Data)
                     {
                         <div class="row">
                             <div class="col">@Html.DisplayFor(dataItem => data.Key)</div>
-                            <div class="col text-right">@Html.DisplayFor(dataItem => data.Value)</div>
+                            @foreach (var fund in giverTotal.Funds.OrderBy(f => f.Key))
+                            {
+                                decimal amount = data.Value.TryGetValue(fund.Key, out amount) ? amount : (decimal)0.0;
+                                <div class="col text-right">@Html.DisplayFor(fundDataItem => amount)</div>
+                            }
                         </div>
                     }
                     <div class="row">
