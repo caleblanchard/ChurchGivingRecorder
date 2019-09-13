@@ -86,8 +86,8 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <input type="submit" value="Save" class="btn btn-primary" />
+        <a asp-action="Edit" asp-controller="Deposits" asp-route-id="@Model.DepositId" class="btn btn-secondary">Back to deposit</a>
+        <input type="submit" value="Save + New" class="btn btn-primary" />
     </div>
 </form>
 
