@@ -69,7 +69,7 @@ namespace ChurchGivingRecorder.Controllers
                 gift.GiftDetails = giftDetails.ToArray();
             }
 
-            return PartialView(gift);
+            return View(gift);
         }
 
         // POST: Gifts/Create
@@ -109,10 +109,10 @@ namespace ChurchGivingRecorder.Controllers
                 }
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Edit), "Deposits", new { Id = gift.DepositId });
+                return RedirectToAction(nameof(Create), "Gifts", new { Id = gift.DepositId });
             }
 
-            return PartialView(giftViewModel);
+            return View(giftViewModel);
         }
 
         // GET: Gifts/Edit/5

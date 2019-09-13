@@ -22,6 +22,7 @@ namespace ChurchGivingRecorder.Models
         [Display(Name = "Name")]
         [MaxLength(255)]
         [LookupColumn(Filterable = true)]
+        [Required]
         public string Name { get; set; }
 
         [Display(Name = "Address")]

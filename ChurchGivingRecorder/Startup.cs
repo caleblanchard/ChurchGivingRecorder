@@ -81,9 +81,9 @@ namespace ChurchGivingRecorder
 
             app.UseAuthentication();
 
-#if MYSQL
+//#if MYSQL
             UpdateDatabase(app);
-#endif
+//#endif
 
             app.UseMvc(routes =>
             {

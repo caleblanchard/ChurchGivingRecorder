@@ -12,6 +12,7 @@ namespace ChurchGivingRecorder.Models
         public int Id { get; set; }
 
         [Display(Name = "Fund Name")]
+        [Required]
         public string Name { get; set; }
 
         [Display(Name = "Description")]
