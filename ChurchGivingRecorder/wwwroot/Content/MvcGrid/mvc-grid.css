@@ -1,5 +1,5 @@
 ﻿/*!
- * Mvc.Grid 4.0.2
+ * Mvc.Grid 5.0.1
  * https://github.com/NonFactors/MVC6.Grid
  *
  * Copyright © NonFactors
@@ -9,8 +9,8 @@
  */
 
 @font-face {
+    src: url('../MvcGrid/fonts/grid-glyphs.woff') format('woff');
     font-family: 'GridGlyphs';
-    src: url('../MvcGrid/Fonts/GridGlyphs.woff') format('woff');
 }
 
 .mvc-grid {
@@ -38,23 +38,14 @@
     padding: 0.75em;
 }
 
-.mvc-grid .filterable {
+.mvc-grid .sortable {
     padding-right: 3.5em;
 }
 
 .mvc-grid .sortable,
+.mvc-grid .mvc-grid-sort,
 .mvc-grid .mvc-grid-filter {
     cursor: pointer;
-}
-
-.mvc-grid .asc::after {
-    padding-left: 3px;
-    content: '\2193';
-}
-
-.mvc-grid .desc::after {
-    padding-left: 3px;
-    content: '\2191';
 }
 
 .mvc-grid-hidden,
@@ -62,6 +53,11 @@
     display: none;
 }
 
+.mvc-grid-title {
+    display: inline-block;
+}
+
+.mvc-grid-sort,
 .mvc-grid-filter {
     background-color: rgba(0, 0, 0, 0.03);
     transition: background-color 0.5s;
@@ -89,6 +85,30 @@
     content: '\0042';
 }
 
+.mvc-grid-sort {
+    background: transparent;
+    font-weight: normal;
+    transition: none;
+}
+
+.mvc-grid-sort::after {
+    font-size: 0.9em;
+    content: '\0044';
+    opacity: 0.15;
+}
+
+.mvc-grid-sort::before {
+    margin-right: -7px;
+    font-size: 0.9em;
+    content: '\0043';
+    opacity: 0.15;
+}
+
+.mvc-grid .desc .mvc-grid-sort::after,
+.mvc-grid .asc .mvc-grid-sort::before {
+    opacity: 0.5;
+}
+
 .mvc-grid-row-filters .filterable {
     padding: 0.25em;
 }
@@ -99,14 +119,17 @@
 
 .mvc-grid-row-filters .mvc-grid-value {
     border: 0.5px solid #aaaaaa;
+    background-color: #ffffff;
+    text-overflow: ellipsis;
     margin-right: 0.25em;
-    padding: 0 0.2em;
-    font: inherit;
+    line-height: normal;
+    font-weight: bold;
+    padding: 0 0.5em;
     flex: 1;
 }
 
-.mvc-grid-row-filters input.mvc-grid-value {
-    padding: 0 0.5em;
+.mvc-grid-row-filters select.mvc-grid-value {
+    padding: 0 0.2em;
 }
 
 .mvc-grid-row-filters .mvc-grid-value.invalid {
@@ -128,25 +151,38 @@
     height: 2.125em;
 }
 
-.mvc-grid-row-filters [readonly] {
-    background-color: #e4e4e4;
+.mvc-grid-excel-mode .filterable {
+    padding-right: 3.5em;
 }
 
-.mvc-grid-row-filters.mvc-grid-headers .filterable {
-    padding: 0;
+.mvc-grid-excel-mode .sortable.filterable {
+    padding-right: 6.25em;
 }
 
-.mvc-grid-row-filters.mvc-grid-headers .mvc-grid-value {
-    padding: 0.75em 3.5em 0.75em 0.75em;
+.mvc-grid-excel-mode .filterable .mvc-grid-sort,
+.mvc-grid-header-mode .filterable .mvc-grid-sort {
+    right: 2.75em;
+}
+
+.mvc-grid-header-mode .filterable {
+    padding: 0 2.75em 0 0;
+}
+
+.mvc-grid-header-mode .mvc-grid-value {
     background-color: #f7f7f7;
+    padding: 0.625em 0.75em;
     border: none;
     margin: 0;
 }
 
-.mvc-grid-row-filters.mvc-grid-headers .mvc-grid-filter {
+.mvc-grid-header-mode .mvc-grid-filter {
     position: absolute;
     border: none;
     height: 100%;
+}
+
+.mvc-grid-header-mode .sortable .mvc-grid-value {
+    padding-right: 3.5em;
 }
 
 .mvc-grid-popup {
@@ -207,6 +243,7 @@
 .mvc-grid-popup .mvc-grid-method,
 .mvc-grid-popup .mvc-grid-operator {
     border: 1px solid #cccccc;
+    background-color: #ffffff;
     box-sizing: border-box;
     font-size: 0.9em;
     padding: 0 0.2em;
@@ -214,11 +251,17 @@
     width: 100%;
 }
 
+.mvc-grid-popup .mvc-grid-value[multiple] {
+    overflow-y: auto;
+    height: 8em;
+}
+
 .mvc-grid-popup .mvc-grid-operator {
     width: auto;
 }
 
 .mvc-grid-popup input.mvc-grid-value {
+    text-overflow: ellipsis;
     padding: 0 0.5em;
 }
 
@@ -240,6 +283,7 @@
     background-color: #28a745;
     border-color: #28a745;
     margin-right: 0.3em;
+    font-weight: bold;
 }
 
 .mvc-grid-popup .mvc-grid-apply:focus {
@@ -293,7 +337,7 @@
     background-color: #efefef;
     cursor: not-allowed;
     color: #777777;
-    outline: none;
+    outline: 0;
 }
 
 .mvc-grid-page-sizes {

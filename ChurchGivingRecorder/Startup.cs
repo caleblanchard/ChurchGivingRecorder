@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using ChurchGivingRecorder.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using kedzior.io.ConnectionStringConverter;
 using DinkToPdf.Contracts;
 using DinkToPdf;
@@ -49,19 +50,20 @@ namespace ChurchGivingRecorder
 #endif
 
             services.AddDefaultIdentity<IdentityUser>()
-                .AddDefaultUI(UIFramework.Bootstrap4)
+                .AddDefaultUI() //UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllersWithViews();
+            services.AddRazorPages();
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             //if (env.IsDevelopment())
             //{
@@ -79,18 +81,23 @@ namespace ChurchGivingRecorder
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
+            app.UseRouting();
+
             app.UseAuthentication();
+            app.UseAuthorization();
 
-//#if MYSQL
+            //#if MYSQL
             UpdateDatabase(app);
-//#endif
+            //#endif
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Deposits}/{action=Index}/{id?}");
+                    pattern: "{controller=Deposits}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
+
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)
