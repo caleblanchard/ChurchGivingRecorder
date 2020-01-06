@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChurchGivingRecorder.Data;
 using ChurchGivingRecorder.Models;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,10 +22,12 @@ namespace ChurchGivingRecorder.Controllers
     {
         private const int fundTotalsId = Int16.MaxValue;
         private readonly ApplicationDbContext _context;
+        private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env;
 
-        public ReportsController(ApplicationDbContext context)
+        public ReportsController(ApplicationDbContext context, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -312,6 +320,111 @@ namespace ChurchGivingRecorder.Controllers
             }
 
             return View("GiversReport", reportData);
+        }
+
+        public async Task<IActionResult> EndYearLetter()
+        {
+            int previousYear = DateTime.Now.Year - 1;
+            var endOfYearLetterParams = new EndOfYearLetterParams()
+            {
+                StartDate = new DateTime(previousYear, 1, 1),
+                EndDate = new DateTime(previousYear, 12, 31),
+                Givers = await _context.Givers.OrderBy(g => g.EnvelopeID).ToListAsync()
+            };
+            return View(endOfYearLetterParams);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EndYearLetter(EndOfYearLetterParams model)
+        {
+            var giver = await _context.Givers.SingleAsync(g => g.Id == model.GiverId);
+
+            var fundYearTotalQuery = from gd in _context.GiftDetails
+                                     join g in _context.Gifts on gd.GiftId equals g.Id
+                                     where g.GiverId == model.GiverId
+                                        && g.GiftDate >= model.StartDate
+                                        && g.GiftDate <= model.EndDate
+                                     group new { g, gd } by new { g.GiftDate.Year } into n
+                                     select new
+                                     {
+                                         n.Key.Year,
+                                         Sum = n.Sum(x => x.gd.Amount),
+                                     };
+            var yearTotal = fundYearTotalQuery.First().Sum;
+            
+            byte[] byteArray = System.IO.File.ReadAllBytes(Path.Combine(_env.WebRootPath, "Content\\GivingLetterTemplate.docx"));
+            MemoryStream mem = new MemoryStream(byteArray);
+            {
+                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(mem, true))
+                {
+                    var body = wordDoc.MainDocumentPart.Document.Body;
+                    var paras = body.Elements<Paragraph>();
+
+                    foreach (var para in paras)
+                    {
+                        foreach (var run in para.Elements<Run>())
+                        {
+                            foreach (var text in run.Elements<Text>())
+                            {
+                                if (text.Text.Contains("%GiverName%"))
+                                {
+                                    text.Text = text.Text.Replace("%GiverName%", giver.Name);
+                                }
+                                
+                                if (text.Text.Contains("%FiscalYear%"))
+                                {
+                                    text.Text = text.Text.Replace("%FiscalYear%", model.StartDate.Year.ToString());
+                                }
+
+                                if (text.Text.Contains("%GiftTotal%"))
+                                {
+                                    text.Text = text.Text.Replace("%GiftTotal%", yearTotal.ToString("C"));
+                                }
+
+                                if (text.Text.Contains("%Itemized%"))
+                                {
+                                    var items = from gd in _context.GiftDetails
+                                                join g in _context.Gifts on gd.GiftId equals g.Id
+                                                where g.GiverId == model.GiverId
+                                                   && g.GiftDate >= model.StartDate
+                                                   && g.GiftDate <= model.EndDate
+                                                   && gd.Amount >= (decimal)250.00
+                                                group new { g, gd } by new { g.GiftDate } into n
+                                                select new
+                                                {
+                                                    n.Key,
+                                                    Sum = n.Sum(x => x.gd.Amount),
+                                                };
+
+                                    StringBuilder sb = new StringBuilder();
+                                    text.Text = "";
+                                    bool isFirst = true;
+                                    foreach (var giftDetail in items)
+                                    {
+                                        if (!isFirst)
+                                        {
+                                            text.InsertBeforeSelf(new Break());
+                                        }
+                                        else
+                                        {
+                                            isFirst = false;
+                                        }
+                                        text.InsertBeforeSelf(new Text(giftDetail.Key.GiftDate.ToShortDateString()));
+                                        text.InsertBeforeSelf(new TabChar());
+                                        text.InsertBeforeSelf(new Text(giftDetail.Sum.ToString("C")));
+                                    }
+                                    text.Remove();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (mem.CanSeek)
+                {
+                    mem.Seek(0, SeekOrigin.Begin);
+                }
+                return File(mem, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "EndOfYearStatement.docx");
+            }
         }
     }
 }
