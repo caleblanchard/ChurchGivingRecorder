@@ -351,9 +351,10 @@ namespace ChurchGivingRecorder.Controllers
                                          Sum = n.Sum(x => x.gd.Amount),
                                      };
             var yearTotal = fundYearTotalQuery.First().Sum;
-            
-            byte[] byteArray = System.IO.File.ReadAllBytes(Path.Combine(_env.WebRootPath, "Content\\GivingLetterTemplate.docx"));
-            MemoryStream mem = new MemoryStream(byteArray);
+
+            var settings = await _context.Settings.FirstOrDefaultAsync();
+            //byte[] byteArray = System.IO.File.ReadAllBytes(Path.Combine(_env.WebRootPath, "Content\\GivingLetterTemplate.docx"));
+            MemoryStream mem = new MemoryStream(settings.EndYearTemplate);
             {
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(mem, true))
                 {
@@ -423,7 +424,8 @@ namespace ChurchGivingRecorder.Controllers
                 {
                     mem.Seek(0, SeekOrigin.Begin);
                 }
-                return File(mem, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "EndOfYearStatement.docx");
+                string fileName = $"{giver.EnvelopeNameDisplay} - {model.StartDate.Year} - Statement.docx";
+                return File(mem, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
             }
         }
     }
