@@ -18,12 +18,11 @@ namespace ChurchGivingRecorder.Data
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<Gift> Gifts { get; set; }
         public DbSet<GiftDetail> GiftDetails { get; set; }
+        public DbSet<Settings> Settings { get; set; }
 
         public DbQuery<DepositView> DepositView { get; set; }
 
-        private readonly IHttpContextAccessor _contextAccessor;
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor contextAccessor)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
