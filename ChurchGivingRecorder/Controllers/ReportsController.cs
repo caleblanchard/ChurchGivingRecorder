@@ -354,8 +354,9 @@ namespace ChurchGivingRecorder.Controllers
 
             var settings = await _context.Settings.FirstOrDefaultAsync();
             //byte[] byteArray = System.IO.File.ReadAllBytes(Path.Combine(_env.WebRootPath, "Content\\GivingLetterTemplate.docx"));
-            MemoryStream mem = new MemoryStream(settings.EndYearTemplate);
+            MemoryStream mem = new MemoryStream();
             {
+                mem.Write(settings.EndYearTemplate, 0, settings.EndYearTemplate.Length);
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(mem, true))
                 {
                     var body = wordDoc.MainDocumentPart.Document.Body;
@@ -367,22 +368,22 @@ namespace ChurchGivingRecorder.Controllers
                         {
                             foreach (var text in run.Elements<Text>())
                             {
-                                if (text.Text.Contains("%GiverName%"))
+                                if (text.Text.Contains("GIVERNAME"))
                                 {
-                                    text.Text = text.Text.Replace("%GiverName%", giver.Name);
+                                    text.Text = text.Text.Replace("GIVERNAME", giver.Name);
                                 }
                                 
-                                if (text.Text.Contains("%FiscalYear%"))
+                                if (text.Text.Contains("FISCALYEAR"))
                                 {
-                                    text.Text = text.Text.Replace("%FiscalYear%", model.StartDate.Year.ToString());
+                                    text.Text = text.Text.Replace("FISCALYEAR", model.StartDate.Year.ToString());
                                 }
 
-                                if (text.Text.Contains("%GiftTotal%"))
+                                if (text.Text.Contains("GIFTTOTAL"))
                                 {
-                                    text.Text = text.Text.Replace("%GiftTotal%", yearTotal.ToString("C"));
+                                    text.Text = text.Text.Replace("GIFTTOTAL", yearTotal.ToString("C"));
                                 }
 
-                                if (text.Text.Contains("%Itemized%"))
+                                if (text.Text.Contains("ITEMIZED"))
                                 {
                                     var items = from gd in _context.GiftDetails
                                                 join g in _context.Gifts on gd.GiftId equals g.Id
@@ -410,7 +411,7 @@ namespace ChurchGivingRecorder.Controllers
                                         {
                                             isFirst = false;
                                         }
-                                        text.InsertBeforeSelf(new Text(giftDetail.Key.GiftDate.ToShortDateString()));
+                                        text.InsertBeforeSelf(new Text(giftDetail.Key.GiftDate.ToString("MM/dd/yy")));
                                         text.InsertBeforeSelf(new TabChar());
                                         text.InsertBeforeSelf(new Text(giftDetail.Sum.ToString("C")));
                                     }
