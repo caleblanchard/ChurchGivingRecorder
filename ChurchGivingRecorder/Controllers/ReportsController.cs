@@ -390,8 +390,8 @@ namespace ChurchGivingRecorder.Controllers
                                                 where g.GiverId == model.GiverId
                                                    && g.GiftDate >= model.StartDate
                                                    && g.GiftDate <= model.EndDate
-                                                   && gd.Amount >= (decimal)250.00
                                                 group new { g, gd } by new { g.GiftDate } into n
+                                                where n.Sum(x => x.gd.Amount) >= (decimal)250.00
                                                 select new
                                                 {
                                                     n.Key,
