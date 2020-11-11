@@ -20,7 +20,7 @@ namespace ChurchGivingRecorder.Data
         public DbSet<GiftDetail> GiftDetails { get; set; }
         public DbSet<Settings> Settings { get; set; }
 
-        public DbQuery<DepositView> DepositView { get; set; }
+        public DbSet<DepositView> DepositView { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -31,8 +31,7 @@ namespace ChurchGivingRecorder.Data
         {
             base.OnModelCreating(builder);
 
-            builder
-                .Query<DepositView>().ToView("DepositView");
+            builder.Entity<DepositView>().HasNoKey();
         }
 
         public override int SaveChanges()
