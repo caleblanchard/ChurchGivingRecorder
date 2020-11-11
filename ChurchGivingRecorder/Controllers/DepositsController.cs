@@ -24,7 +24,7 @@ namespace ChurchGivingRecorder.Controllers
         // GET: Deposits
         public IActionResult Index()
         {
-            return View(_context.Query<DepositView>().OrderByDescending(d => d.DepositDate));
+            return View(_context.Set<DepositView>().OrderByDescending(d => d.DepositDate));
         }
 
         // GET: Deposits/Details/5

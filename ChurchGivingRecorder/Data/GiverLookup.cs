@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChurchGivingRecorder.Data
 {
-    public class GiverLookup : MvcLookup<Giver>
+    public class GiverLookup : ALookup<Giver>
     {
         private ApplicationDbContext Context { get; }
 

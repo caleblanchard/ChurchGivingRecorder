@@ -1,21 +1,23 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering;
 @using Microsoft.Extensions.Primitives;
 @using NonFactors.Mvc.Grid;
+@using System.Linq;
 
 @model IGrid
 
-<div id="@Model.Id" class="mvc-grid mvc-grid-@(Model.FilterMode.ToString().ToLower())-mode" data-name="@Model.Name" data-filter-mode="@Model.FilterMode" data-source-url="@Model.SourceUrl">
+@{
+    IGridRow<Object>[] rows = Model.Rows.ToArray();
+}
+
+<div id="@Model.Id" class="mvc-grid mvc-grid-@(Model.FilterMode.ToString().ToLower())-mode" data-name="@Model.Name" data-filter-mode="@Model.FilterMode" data-url="@Model.Url">
     <!table@(Model.Attributes)>
         <thead>
             <tr class="mvc-grid-headers@(Model.FilterMode == GridFilterMode.Header ? " mvc-grid-row-filters" : "")">
             @foreach (IGridColumn column in Model.Columns)
             {
-                String hidden = column.IsHidden ? "mvc-grid-hidden" : null;
-                String sortable = column.Sort.IsEnabled == true ? "sortable" : null;
-                Boolean filterApplied = (column.Filter.First ?? column.Filter.Second) != null;
-                String filterable = column.Filter.IsEnabled == true && !String.IsNullOrEmpty(column.Filter.Name) ? "filterable" : null;
+                String applied = (column.Filter.First ?? column.Filter.Second) == null ? "" : " applied";
 
-                <th class="@column.CssClasses @filterable @sortable @column.Sort.Order.ToString().ToLower() @hidden" data-name="@column.Name" data-filter="@column.Filter.IsEnabled" data-filter-applied="@filterApplied" data-filter-name="@column.Filter.Name" data-filter-type="@column.Filter.Type" data-filter-default-method="@column.Filter.DefaultMethod" data-sort="@column.Sort.IsEnabled" data-sort-order="@column.Sort.Order" data-sort-first="@column.Sort.FirstOrder">
+                <th@(column.AsAttributes())>
                 @if (column.Filter.IsEnabled == true && !String.IsNullOrEmpty(column.Filter.Name) && Model.FilterMode != GridFilterMode.Row)
                 {
                     if (Model.FilterMode == GridFilterMode.Header)
@@ -50,10 +52,10 @@
 
                     if (column.Sort.IsEnabled == true)
                     {
-                    <button type="button" class="mvc-grid-sort"></button>
+                    <button type="button" class="mvc-grid-sort"><span>@(column.Sort.Index + 1)</span></button>
                     }
 
-                    <button type="button" class="mvc-grid-filter @(filterApplied ? "applied" : "")"></button>
+                    <button type="button" class="mvc-grid-filter@(applied)"></button>
                 }
                 else
                 {
@@ -61,7 +63,7 @@
 
                     if (column.Sort.IsEnabled == true)
                     {
-                    <button type="button" class="mvc-grid-sort"></button>
+                    <button type="button" class="mvc-grid-sort"><span>@(column.Sort.Index + 1)</span></button>
                     }
                 }
                 </th>
@@ -72,13 +74,13 @@
             <tr class="mvc-grid-row-filters">
             @foreach (IGridColumn column in Model.Columns)
             {
-                String hidden = column.IsHidden ? "mvc-grid-hidden" : null;
+                String hidden = column.IsHidden ? " mvc-grid-hidden" : "";
 
                 if (column.Filter.IsEnabled == true && !String.IsNullOrEmpty(column.Filter.Name))
                 {
-                    String filterApplied = (column.Filter.First ?? column.Filter.Second) != null ? "applied" : "";
+                    String applied = (column.Filter.First ?? column.Filter.Second) == null ? "" : " applied";
 
-                <th class="filterable @column.CssClasses @hidden">
+                <th class="filterable @(column.CssClasses)@(hidden)">
                     <div>
                     @if (column.Filter.Options.Any())
                     {
@@ -117,27 +119,34 @@
                     {
                         <input class="mvc-grid-value" value="@column.Filter.First?.Values" />
                     }
-                        <button type="button" class="mvc-grid-filter @filterApplied"></button>
+                        <button type="button" class="mvc-grid-filter@(applied)"></button>
                     </div>
                 </th>
                 }
                 else
                 {
-                <th class="@column.CssClasses @hidden"></th>
+                <th class="@(column.CssClasses)@(hidden)"></th>
                 }
             }
             </tr>
         }
         </thead>
         <tbody>
-        @foreach (IGridRow<Object> row in Model.Rows)
+        @foreach (IGridRow<Object> row in rows)
         {
-            <!tr class="@row.CssClasses"@row.Attributes>
+            <!tr@(row.Attributes)>
             @foreach (IGridColumn column in Model.Columns)
             {
-                String classes = column.IsHidden ? column.CssClasses + " mvc-grid-hidden" : column.CssClasses;
+                String classes = (column.IsHidden ? column.CssClasses + " mvc-grid-hidden" : column.CssClasses).Trim();
 
+                if (String.IsNullOrEmpty(classes))
+                {
+                <td>@column.ValueFor(row)</td>
+                }
+                else
+                {
                 <td class="@classes">@column.ValueFor(row)</td>
+                }
             }
             </!tr>
         }
@@ -145,12 +154,12 @@
         {
             <tr class="mvc-grid-empty-row">
                 <td colspan="@Model.Columns.Count()">
-                    @Model.EmptyText
+                    @Html.Raw(Model.EmptyText)
                 </td>
             </tr>
         }
-</tbody>
-    @if (Model.FooterPartialViewName != null)
+        </tbody>
+    @if (!String.IsNullOrEmpty(Model.FooterPartialViewName))
     {
         <tfoot>
             @await Html.PartialAsync(Model.FooterPartialViewName, Model)
