@@ -22,7 +22,8 @@
                     </div>*@
                 <div class="form-group">
                     <label asp-for="GiverId" class="control-label"></label>
-                    @Html.AutoCompleteFor(model => model.GiverId, new ChurchGivingRecorder.Data.GiverLookup())
+                    <div mvc-lookup-for="GiverId" url="/Givers/AllGivers" title="Giver" browser="false"></div>
+                    @*@Html.AutoCompleteFor(model => model.GiverId, new ChurchGivingRecorder.Data.GiverLookup())*@
                 </div>
                 <div class="form-group">
                     <label asp-for="GiftDate" class="control-label"></label>

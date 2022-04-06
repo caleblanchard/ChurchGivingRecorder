@@ -1,6 +1,5 @@
 /*!
- * Mvc.Lookup 5.1.1
- * https://github.com/NonFactors/AspNetCore.Lookup
+ * Mvc.Lookup 6.0.0
  *
  * Copyright © NonFactors
  *
@@ -49,7 +48,6 @@ class MvcLookupFilter {
         query.set("order", filter.order);
         query.set("sort", filter.sort);
         query.set("rows", filter.rows);
-        query.set("_", Date.now());
 
         return url.href;
     }
@@ -132,6 +130,7 @@ class MvcLookupDialog {
 
         clearTimeout(lookup.loadingTimerId);
         clearTimeout(lookup.searchTimerId);
+        lookup.loadingTimerId = 0;
         lookup.searchTimerId = 0;
 
         MvcLookupDialog.current = null;
@@ -172,7 +171,7 @@ class MvcLookupDialog {
 
             dialog.render(data);
         }).catch(reason => {
-            if (reason.name == "AbortError") {
+            if (reason instanceof DOMException && reason.name === "AbortError") {
                 return Promise.resolve();
             }
 
@@ -268,13 +267,13 @@ class MvcLookupDialog {
             header.classList.add(column.cssClass);
         }
 
-        if (filter.sort == column.key) {
+        if (filter.sort === column.key) {
             header.classList.add(`mvc-lookup-${filter.order.toLowerCase()}`);
         }
 
         header.innerText = column.header || "";
         header.addEventListener("click", () => {
-            filter.order = filter.sort == column.key && filter.order == "Asc" ? "Desc" : "Asc";
+            filter.order = filter.sort === column.key && filter.order === "Asc" ? "Desc" : "Asc";
             filter.sort = column.key;
             filter.offset = 0;
 
@@ -305,7 +304,7 @@ class MvcLookupDialog {
             }
 
             if (lookup.multi) {
-                const index = dialog.selected.findIndex(selected => selected.Id == data.Id);
+                const index = dialog.selected.findIndex(selected => selected.Id === data.Id);
 
                 if (index >= 0) {
                     dialog.selected.splice(index, 1);
@@ -319,7 +318,7 @@ class MvcLookupDialog {
 
                 dialog.selector.innerText = MvcLookup.lang.select.replace("{0}", dialog.selected.length.toString());
             } else {
-                if (e.ctrlKey && dialog.selected.findIndex(selected => selected.Id == data.Id) >= 0) {
+                if (e.ctrlKey && dialog.selected.findIndex(selected => selected.Id === data.Id) >= 0) {
                     dialog.selected = [];
                 } else {
                     dialog.selected = [data];
@@ -345,14 +344,14 @@ class MvcLookupDialog {
         lookup.controller.abort();
         clearTimeout(lookup.searchTimerId);
 
-        if (e.keyCode == 13) {
+        if (e.key === "Enter") {
             lookup.filter.search = this.value;
             lookup.filter.offset = 0;
 
             dialog.refresh();
         } else {
             lookup.searchTimerId = setTimeout(() => {
-                if (lookup.filter.search != this.value) {
+                if (lookup.filter.search !== this.value) {
                     lookup.filter.search = this.value;
                     lookup.filter.offset = 0;
 
@@ -367,7 +366,7 @@ class MvcLookupDialog {
 
         rows.value = dialog.limitRows(rows.value);
 
-        if (dialog.lookup.filter.rows.toString() != rows.value) {
+        if (dialog.lookup.filter.rows.toString() !== rows.value) {
             dialog.lookup.filter.rows = parseInt(rows.value);
             dialog.lookup.filter.offset = 0;
 
@@ -430,7 +429,7 @@ class MvcLookupOverlay {
         }
     }
     onKeyDown(e) {
-        if (e.which == 27 && MvcLookupDialog.current) {
+        if (e.key === "Escape" && MvcLookupDialog.current) {
             MvcLookupDialog.current.closeWithoutSave();
         }
     }
@@ -449,7 +448,7 @@ class MvcLookupAutocomplete {
         autocomplete.element.className = "mvc-lookup-autocomplete";
         autocomplete.options = {
             minLength: 1,
-            addHandler: autocomplete.lookup.group.dataset.addHandler == "True",
+            addHandler: autocomplete.lookup.group.dataset.addHandler === "True",
 
             rows: 20,
             sort: lookup.filter.sort,
@@ -483,7 +482,7 @@ class MvcLookupAutocomplete {
                 autocomplete.element.appendChild(item);
                 autocomplete.bind(item, [row]);
 
-                if (row == data.rows[0]) {
+                if (row === data.rows[0]) {
                     autocomplete.activeItem = item;
                     item.classList.add("active");
                 }
@@ -522,6 +521,8 @@ class MvcLookupAutocomplete {
             autocomplete.resize();
 
             document.body.appendChild(autocomplete.element);
+
+            return data.rows;
         });
     }
     previous() {
@@ -577,7 +578,7 @@ class MvcLookupAutocomplete {
         style.top = `${control.bottom + window.pageYOffset - 3}px`;
     }
 
-    bind(item, data) {
+    bind(item, rows) {
         const autocomplete = this;
         const lookup = autocomplete.lookup;
 
@@ -587,9 +588,9 @@ class MvcLookupAutocomplete {
 
         item.addEventListener("click", () => {
             if (lookup.multi) {
-                lookup.select(lookup.selected.concat(data), true);
+                lookup.select(lookup.selected.concat(rows), true);
             } else {
-                lookup.select(data, true);
+                lookup.select(rows, true);
             }
 
             autocomplete.hide();
@@ -622,8 +623,8 @@ class MvcLookup {
         lookup.loadingTimerId = 0;
         lookup.for = group.dataset.for;
         lookup.controller = new AbortController();
-        lookup.multi = group.dataset.multi == "True";
-        lookup.readonly = group.dataset.readonly == "True";
+        lookup.multi = group.dataset.multi === "True";
+        lookup.readonly = group.dataset.readonly === "True";
         lookup.url = new URL(group.dataset.url, location.href);
         lookup.options = { searchDelay: 300, loadingDelay: 300 };
         lookup.group.dataset.id = MvcLookup.instances.length.toString();
@@ -649,10 +650,10 @@ class MvcLookup {
     set(options) {
         const lookup = this;
 
-        lookup.options.loadingDelay = options.loadingDelay == null ? lookup.options.loadingDelay : options.loadingDelay;
-        lookup.options.searchDelay = options.searchDelay == null ? lookup.options.searchDelay : options.searchDelay;
+        lookup.options.loadingDelay = typeof options.loadingDelay === "number" ? options.loadingDelay : lookup.options.loadingDelay;
+        lookup.options.searchDelay = typeof options.searchDelay === "number" ? options.searchDelay : lookup.options.searchDelay;
         lookup.autocomplete.options = Object.assign(lookup.autocomplete.options, options.autocomplete);
-        lookup.setReadonly(options.readonly == null ? lookup.readonly : options.readonly);
+        lookup.setReadonly(typeof options.readonly === "boolean" ? options.readonly : lookup.readonly);
         lookup.dialog.options = Object.assign(lookup.dialog.options, options.dialog);
 
         return lookup;
@@ -668,7 +669,6 @@ class MvcLookup {
             lookup.group.classList.add("mvc-lookup-readonly");
 
             if (lookup.browser) {
-                lookup.browser.tabIndex = -1;
                 lookup.browser.disabled = true;
             }
         } else {
@@ -678,7 +678,6 @@ class MvcLookup {
 
             if (lookup.browser) {
                 lookup.browser.disabled = false;
-                lookup.browser.removeAttribute("tabindex");
             }
         }
 
@@ -704,35 +703,33 @@ class MvcLookup {
         const ids = lookup.values.filter(element => element.value);
 
         if (ids.length) {
-            lookup.fetch({ ids: ids, offset: 0, rows: ids.length }, data => {
-                lookup.select(data.rows, triggerChanges);
-            });
-        } else {
-            lookup.select([], triggerChanges);
+            return lookup.fetch({ ids: ids, offset: 0, rows: ids.length }, data => lookup.select(data.rows, triggerChanges));
         }
+
+        return Promise.resolve(lookup.select([], triggerChanges));
     }
-    select(data, triggerChanges = true) {
+    select(rows, triggerChanges = true) {
         const lookup = this;
         let trigger = triggerChanges;
         const cancelled = !lookup.group.dispatchEvent(new CustomEvent("lookupselect", {
-            detail: { lookup, data, triggerChanges },
+            detail: { lookup, data: rows, triggerChanges },
             cancelable: true,
             bubbles: true
         }));
 
         if (cancelled) {
-            return;
+            return null;
         }
 
-        if (trigger && data.length == lookup.selected.length) {
+        if (trigger && rows.length === lookup.selected.length) {
             trigger = false;
 
-            for (let i = 0; i < data.length && !trigger; i++) {
-                trigger = data[i].Id != lookup.selected[i].Id;
+            for (let i = 0; i < rows.length && !trigger; i++) {
+                trigger = rows[i].Id !== lookup.selected[i].Id;
             }
         }
 
-        lookup.selected = data;
+        lookup.selected = rows;
 
         if (lookup.multi) {
             lookup.search.value = "";
@@ -742,19 +739,19 @@ class MvcLookup {
                 item.parentElement.removeChild(item);
             }
 
-            lookup.items = lookup.createSelectedItems(data);
+            lookup.items = lookup.createSelectedItems(rows);
 
             for (const item of lookup.items) {
                 lookup.control.insertBefore(item, lookup.search);
             }
 
-            lookup.values = lookup.createValues(data);
+            lookup.values = lookup.createValues(rows);
             lookup.values.forEach(value => lookup.valueContainer.appendChild(value));
 
             lookup.resize();
-        } else if (data.length) {
-            lookup.values[0].value = data[0].Id;
-            lookup.search.value = data[0].Label;
+        } else if (rows.length) {
+            lookup.values[0].value = rows[0].Id;
+            lookup.search.value = rows[0].Label;
         } else {
             lookup.values[0].value = "";
             lookup.search.value = "";
@@ -766,20 +763,14 @@ class MvcLookup {
             lookup.search.dispatchEvent(change);
             lookup.values.forEach(value => value.dispatchEvent(change));
         }
+
+        return rows;
     }
     selectFirst(triggerChanges = true) {
-        this.fetch({ search: "", offset: 0, rows: 1 }, data => {
-            this.select(data.rows, triggerChanges);
-        });
+        return this.fetch({ search: "", offset: 0, rows: 1 }, data => this.select(data.rows, triggerChanges));
     }
     selectSingle(triggerChanges = true) {
-        this.fetch({ search: "", offset: 0, rows: 2 }, data => {
-            if (data.rows.length == 1) {
-                this.select(data.rows, triggerChanges);
-            } else {
-                this.select([], triggerChanges);
-            }
-        });
+        return this.fetch({ search: "", offset: 0, rows: 2 }, data => this.select(data.rows.length === 1 ? data.rows : [], triggerChanges));
     }
 
     fetch(search, resolved) {
@@ -787,12 +778,14 @@ class MvcLookup {
 
         lookup.controller.abort();
         lookup.controller = new AbortController();
-        lookup.loadingTimerId = setTimeout(() => {
-            lookup.group.classList.add("mvc-lookup-loading");
-        }, lookup.options.loadingDelay);
+        lookup.loadingTimerId = lookup.loadingTimerId
+            ? lookup.loadingTimerId
+            : setTimeout(() => {
+                lookup.group.classList.add("mvc-lookup-loading");
+            }, lookup.options.loadingDelay);
         lookup.group.classList.remove("mvc-lookup-error");
 
-        fetch(lookup.filter.formUrl(search), {
+        return fetch(lookup.filter.formUrl(search), {
             signal: lookup.controller.signal,
             headers: { "X-Requested-With": "XMLHttpRequest" }
         }).then(response => {
@@ -802,18 +795,22 @@ class MvcLookup {
 
             return Promise.reject(new Error(`Invalid response status: ${response.status}`));
         }).then(data => {
-            resolved(data);
+            const resolvedData = resolved(data);
 
             clearTimeout(lookup.loadingTimerId);
 
             lookup.group.classList.remove("mvc-lookup-loading");
+            lookup.loadingTimerId = 0;
+
+            return resolvedData;
         }).catch(reason => {
-            if (reason.name == "AbortError") {
-                return Promise.resolve();
+            if (reason instanceof DOMException && reason.name === "AbortError") {
+                return null;
             }
 
             clearTimeout(lookup.loadingTimerId);
 
+            lookup.loadingTimerId = 0;
             lookup.error.title = MvcLookup.lang.error;
             lookup.group.classList.add("mvc-lookup-error");
             lookup.group.classList.remove("mvc-lookup-loading");
@@ -822,8 +819,8 @@ class MvcLookup {
         });
     }
 
-    createSelectedItems(data) {
-        return data.map(selection => {
+    createSelectedItems(rows) {
+        return rows.map(row => {
             const button = document.createElement("button");
 
             button.className = "mvc-lookup-deselect";
@@ -832,30 +829,30 @@ class MvcLookup {
 
             const item = document.createElement("div");
 
-            item.innerText = selection.Label || "";
             item.className = "mvc-lookup-item";
+            item.innerText = row.Label || "";
             item.appendChild(button);
 
-            this.bindDeselect(button, selection.Id);
+            this.bindDeselect(button, row.Id);
 
             return item;
         });
     }
-    createValues(data) {
-        return data.map(value => {
+    createValues(rows) {
+        return rows.map(row => {
             const input = document.createElement("input");
 
             input.className = "mvc-lookup-value";
-            input.value = value.Id;
-            input.type = "hidden";
             input.name = this.for;
+            input.type = "hidden";
+            input.value = row.Id;
 
             return input;
         });
     }
     bindDeselect(close, id) {
         close.addEventListener("click", () => {
-            this.select(this.selected.filter(value => value.Id != id), true);
+            this.select(this.selected.filter(value => value.Id !== id), true);
 
             this.search.focus();
         });
@@ -895,6 +892,7 @@ class MvcLookup {
             const lastItem = lookup.items[lookup.items.length - 1];
 
             contentWidth -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+
             let widthLeft = Math.floor(contentWidth - lastItem.offsetLeft - lastItem.offsetWidth);
 
             if (widthLeft > contentWidth / 3) {
@@ -916,7 +914,7 @@ class MvcLookup {
         lookup.search.addEventListener("focus", function () {
             lookup.group.classList.add("mvc-lookup-focus");
 
-            if (autocomplete.options.minLength <= this.value.length) {
+            if (!lookup.readonly && !this.value.length && !autocomplete.options.minLength) {
                 autocomplete.search(this.value);
             }
         });
@@ -934,11 +932,12 @@ class MvcLookup {
                 clearTimeout(lookup.searchTimerId);
                 lookup.controller.abort();
 
+                lookup.loadingTimerId = 0;
                 lookup.searchTimerId = 0;
             }
 
             if (!lookup.multi && lookup.selected.length) {
-                if (lookup.selected[0].Label != this.value) {
+                if (lookup.selected[0].Label !== this.value) {
                     lookup.select([], true);
                 }
             } else {
@@ -951,28 +950,20 @@ class MvcLookup {
         });
 
         lookup.search.addEventListener("keydown", function (e) {
-            switch (e.which) {
-                case 8:
+            switch (e.key) {
+                case "Backspace":
                     if (!this.value.length && lookup.selected.length) {
                         lookup.select(lookup.selected.slice(0, -1), true);
                     }
 
                     break;
-                case 9:
+                case "Tab":
                     if (autocomplete.activeItem) {
-                        if (lookup.browser) {
-                            lookup.browser.tabIndex = -1;
-
-                            setTimeout(() => {
-                                lookup.browser.removeAttribute("tabindex");
-                            }, 100);
-                        }
-
                         autocomplete.activeItem.click();
                     }
 
                     break;
-                case 13:
+                case "Enter":
                     if (autocomplete.activeItem) {
                         e.preventDefault();
 
@@ -980,13 +971,13 @@ class MvcLookup {
                     }
 
                     break;
-                case 38:
+                case "ArrowUp":
                     e.preventDefault();
 
                     autocomplete.previous();
 
                     break;
-                case 40:
+                case "ArrowDown":
                     e.preventDefault();
 
                     autocomplete.next();
@@ -1006,6 +997,9 @@ class MvcLookup {
             clearTimeout(lookup.loadingTimerId);
             lookup.group.classList.remove("mvc-lookup-error");
             lookup.group.classList.remove("mvc-lookup-loading");
+
+            lookup.loadingTimerId = 0;
+            lookup.searchTimerId = 0;
 
             if (autocomplete.options.minLength <= this.value.length) {
                 lookup.searchTimerId = setTimeout(() => {
@@ -1038,9 +1032,7 @@ class MvcLookup {
                     const ids = lookup.values.filter(element => element.value);
 
                     if (ids.length || lookup.selected.length) {
-                        lookup.fetch({ checkIds: ids, offset: 0, rows: ids.length }, data => {
-                            lookup.select(data.rows, true);
-                        });
+                        lookup.fetch({ checkIds: ids, offset: 0, rows: ids.length }, data => lookup.select(data.rows, true));
                     }
                 });
             }
