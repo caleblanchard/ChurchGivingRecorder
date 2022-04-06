@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ChurchGivingRecorder</title>
 
-    <link href="~/Content/MvcGrid/mvc-grid.css" rel="stylesheet">
+    <link href="~/Content/mvc-grid/mvc-grid.css" rel="stylesheet">
     <link href="~/Content/MvcLookup/mvc-lookup.css" rel="stylesheet">
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -74,15 +74,11 @@
 
     <script src="~/Scripts/MvcGrid/mvc-grid.js"></script>
     <script>
-        [].forEach.call(document.getElementsByClassName('mvc-grid'), function (element) {
-            new MvcGrid(element);
-        });
+        document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
     </script>
     <script src="~/Scripts/MvcLookup/mvc-lookup.js"></script>
     <script>
-        [].forEach.call(document.getElementsByClassName('mvc-lookup'), function (element) {
-                       new MvcLookup(element);
-                   });
+        document.querySelectorAll(".mvc-lookup").forEach(element => new MvcLookup(element));
     </script>
 
     <environment include="Development">

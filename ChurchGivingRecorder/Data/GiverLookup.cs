@@ -27,8 +27,8 @@ namespace ChurchGivingRecorder.Data
 
         public GiverLookup()
         {
-            Url = "/Givers/AllGivers";
-            Title = "Givers";
+            //Url = "/Givers/AllGivers";
+            //Title = "Givers";
 
             Columns = new List<LookupColumn>
             {
