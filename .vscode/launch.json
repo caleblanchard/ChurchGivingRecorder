@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ChurchGivingRecorder/bin/Debug/netcoreapp2.2/ChurchGivingRecorder.dll",
+            "program": "${workspaceFolder}/ChurchGivingRecorder/bin/Debug/net8.0/ChurchGivingRecorder.dll",
             "args": [],
             "cwd": "${workspaceFolder}/ChurchGivingRecorder",
             "stopAtEntry": false,

@@ -155,8 +155,30 @@ namespace ChurchGivingRecorder.Controllers
             return View(giversReportParams);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GiversList()
+        {
+            List<GiverListData> giverList = new List<GiverListData>();
+
+            var givers = await _context.Givers.OrderBy(g => g.EnvelopeID).ToListAsync();
+
+            foreach(var giver in givers)
+            {
+                giverList.Add(new GiverListData
+                {
+                    Id = giver.Id,
+                    Name = giver.Name,
+                    EnvelopeID = giver.EnvelopeID,
+                    NeedBox = giver.NeedBox,
+                    NeedLetter = giver.NeedLetter
+                });
+            }
+
+            return View("GiversListReport", giverList);
+        }
+
         [HttpPost]
-        public IActionResult Givers(GiversReportParams model)
+        public async Task<IActionResult> Givers(GiversReportParams model)
         {
             GiversReportData reportData = new GiversReportData()
             {
@@ -172,7 +194,9 @@ namespace ChurchGivingRecorder.Controllers
                 givers = givers.Where(g => g.Id == model.GiverId);
             }
 
-            foreach (var giver in givers)
+            List<Giver> giversList = await givers.ToListAsync();
+
+            foreach (var giver in giversList)
             {
                 var giverTotal = new GiverTotals()
                 {
@@ -275,23 +299,24 @@ namespace ChurchGivingRecorder.Controllers
 
                     case GroupBy.Year:
 
-                        var giverYearTotalQuery = from f in _context.Funds
+                        var giverYearTotalQuery = await (from f in _context.Funds
                                                   join gd in _context.GiftDetails on f.Id equals gd.FundId
                                                  join g in _context.Gifts on gd.GiftId equals g.Id
                                                  where g.GiverId == giver.Id
                                                     && g.GiftDate >= model.StartDate
                                                     && g.GiftDate <= model.EndDate
                                                  group new { f, g, gd } by new { f.Id, f.Name, g.GiftDate.Year } into n
+                                                 orderby n.Key.Year
                                                  select new
                                                  {
                                                      n.Key.Id,
                                                      n.Key.Name,
                                                      n.Key.Year,
                                                      Sum = n.Sum(x => x.gd.Amount),
-                                                 };
+                                                 }).ToListAsync();
 
                         int previousYear = 0;
-                        foreach (var fundTotalRecord in giverYearTotalQuery.OrderBy(g => g.Year))
+                        foreach (var fundTotalRecord in giverYearTotalQuery)
                         {
                             if (previousYear != 0 && previousYear != fundTotalRecord.Year)
                             {

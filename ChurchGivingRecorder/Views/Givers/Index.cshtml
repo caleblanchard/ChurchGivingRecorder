@@ -7,7 +7,8 @@
 <h1>Givers</h1>
 
 <p>
-    <a asp-action="Create" data-target="#createEditModal" data-toggle="modal">Create New</a>
+    <a asp-action="Create" data-target="#createEditModal" data-toggle="modal">Create New</a> | 
+    <a asp-action="GiversList" asp-controller="Reports">Export</a>
 </p>
 @(Html
                 .Grid(Model)
@@ -15,6 +16,10 @@
                 {
                     columns.Add(model => Html.ActionLink($"{model.Name}", "Edit", new { Id = model.Id }, new { data_target = "#createEditModal", data_toggle = "modal" })).Titled("Giver Id");
                     columns.Add(model => model.EnvelopeID).Titled("Envelope ID");
+                    columns.Add(model => model.NeedLetter).Titled("Need Letter")
+                        .RenderedAs((model, row) => Html.Raw("<input type='checkbox' disabled='disabled' name='Input.SelectedAccessRightsIds' value='"+ model.Id + "' " + (model.NeedLetter ? "checked" : "") + " />"));
+                    columns.Add(model => model.NeedBox).Titled("Need Box")
+                        .RenderedAs((model, row) => Html.Raw("<input type='checkbox' disabled='disabled' name='Input.SelectedAccessRightsIds' value='"+ model.Id + "' " + (model.NeedBox ? "checked" : "") + " />"));
                     columns.Add(model => Html.ActionLink($"Delete", "Delete", new { Id = model.Id, }, new { @class = "btn btn-danger btn-sm", data_target = "#createEditModal", data_toggle = "modal" }));
                 })
                 .Empty("No data found")

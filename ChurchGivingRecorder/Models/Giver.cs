@@ -28,6 +28,12 @@ namespace ChurchGivingRecorder.Models
         [Display(Name = "Address")]
         public string Address { get; set; }
 
+        [Display(Name = "Need Box")]
+        public bool NeedBox { get; set; }
+
+        [Display(Name = "Need Letter")]
+        public bool NeedLetter { get; set; }
+
         [NotMapped]
         public string EnvelopeNameDisplay
         {

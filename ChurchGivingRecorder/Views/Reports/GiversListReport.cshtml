@@ -1,0 +1,50 @@
+﻿@model List<ChurchGivingRecorder.Models.GiverListData>
+@{
+    ViewData["Title"] = "GiversListReport";
+    Layout = "/Views/Shared/_LayoutReport.cshtml";
+}
+
+<style>
+    input[type="radio"],
+    input[type="checkbox"] {
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+    }
+</style>
+
+<h1>Givers List Report</h1>
+
+<div>
+    <hr />
+
+    <div class="container">
+        <div class="row">
+            <div class="col"><h4>Name</h4></div>
+            <div class="col"><h4>Envelope</h4></div>
+            <div class="col"><h4>Need Letter</h4></div>
+            <div class="col"><h4>Need Box</h4></div>
+        </div>
+        @foreach (var giver in Model)
+        {
+            <div class="row">
+                <div class="col border align-middle pb-2 pt-2" style="font-size: 20px">
+                    @Html.DisplayFor(modelItem => giver.Name)
+                </div>
+                <div class="col border align-middle pb-2 pt-2" style="font-size: 20px">
+                    @Html.DisplayFor(modelItem => giver.EnvelopeID)
+                </div>
+                <div class="col border align middle pb-2 pt-2" style="font-size: 20px">
+                    @Html.DisplayFor(modelItem => giver.NeedLetter)
+                </div>
+                <div class="col border align middle pb-2 pt-2" style="font-size: 20px">
+                    @Html.DisplayFor(modelItem => giver.NeedBox)
+                </div>
+
+
+
+            </div>
+        }
+    </div>
+
+</div>

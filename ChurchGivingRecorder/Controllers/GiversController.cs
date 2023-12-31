@@ -66,7 +66,7 @@ namespace ChurchGivingRecorder.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EnvelopeID,Name,Address")] Giver giver)
+        public async Task<IActionResult> Create([Bind("Id,EnvelopeID,Name,Address,NeedLetter,NeedBox")] Giver giver)
         {
             if (ModelState.IsValid)
             {
@@ -98,7 +98,7 @@ namespace ChurchGivingRecorder.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,EnvelopeID,Name,Address")] Giver giver)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,EnvelopeID,Name,Address,NeedLetter,NeedBox")] Giver giver)
         {
             if (id != giver.Id)
             {
